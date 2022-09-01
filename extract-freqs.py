@@ -61,7 +61,7 @@ for sample in subsamples:
     # midwin = len(sp)//2
     # savgol[midwin] = 0.5*(savgol[midwin - 1]+savgol[midwin])
     # savgol[255] = 0.5*(savgol[254] + savgol[256])
-    peaks = sg.find_peaks(sp, prominence=10)[0]
+    peaks = sg.find_peaks(sp, prominence=40)[0]
     peakvals = sp[peaks]
     
     # peakpowers = []
@@ -111,3 +111,13 @@ plt.scatter(sps[s], sp[sps[s]],c='r')
 # ax.set_xlabel('Time sample (/10)')
 # ax.set_zlabel('Power / dB')
 # # ax.legend(loc='best')
+
+#%% READ IN NOTE LIBRARY FROM TXT
+
+notelib = pd.read_csv('note-lib.txt', sep="\s", header=None)
+notelib.columns = ["Note", "Freq", "fmin", "fmax"]
+
+#%% PASS FREQS THROUGH LIBRARY TO IDENTIFY NOTES
+
+
+
