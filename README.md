@@ -1,3 +1,3 @@
 # chord-transcriber
 
-# Aim: I want this script to be able to read in a music file and pick out chords
+# Aim: to identify chords from songs recorded as .wav files
