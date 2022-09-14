@@ -21,6 +21,13 @@ from IPython.display import Audio
 
 from tools import *
 
+#%% READ IN NOTE LIBRARY FROM TXT
+
+notelib = pd.read_csv('note-lib.txt', sep="\s", header=None)
+notelib.columns = ["Note", "Freq", "fmin", "fmax"]
+notelib = notelib.iloc[9:97]
+frdown, frup = notelib.iloc[0]['fmin'], notelib.iloc[-1]['fmax']
+
 #%% LOAD MELODIC SPECTROGRAM AND PLOT
 
 file1 = 'data/matilda-melspec.csv'
@@ -28,25 +35,27 @@ spec = pd.read_csv(file1).to_numpy()
 spec = np.delete(spec, 0, axis=1)
 spec_db = lb.amplitude_to_db(np.abs(spec), ref=np.max(spec))
 abs_spec, ax = plt.subplots(figsize=(15,10))
-specplot = lb.display.specshow(spec_db,x_axis='time',y_axis='linear',ax=ax)
-abs_spec.colorbar(specplot, ax=ax)
+specplot = lb.display.specshow(spec_db,x_axis='time',y_axis='chroma',key='D:maj',ax=ax)
+abs_spec.colorbar(specplot, ax=ax, format="%+2.f dB")
 
 #%% FIND PEAK FREQS
 
 subsamples = np.arange(0, len(spec_db[0]), 1)
 sps = {}
-pkp = {}
+# pkp = {}
 i=0
 for sample in subsamples:
-
     sp = spec_db[:,sample]
-    peaks = sg.find_peaks(sp, prominence=40)[0]
-    peakvals = sp[peaks]
-
-    # check if list not empty and if so dump into dict
+    peaks = sg.find_peaks(sp, prominence=30)[0]
+    # peakvals = sp[peaks]
+    print(peaks)    
+    # Remove values outside frequency range of the piano
+    peaks = peaks[(peaks > frdown) & (peaks < frup)]
+    print(peaks)
+    # Check if list not empty, and if so dump into dict
     if peaks.tolist():
         sps[i] = {'freqs':peaks,'notes':[]}
-        pkp[i] = peakvals
+        # pkp[i] = peakvals
     i+=1
 
 # build array of 3-vectors for strong peaks
@@ -68,54 +77,17 @@ plt.xlabel('Freq / Hz')
 plt.ylabel('dB')
 plt.scatter(sps[s]['freqs'], sp[sps[s]['freqs']],c='r')
 
-#%% READ IN NOTE LIBRARY FROM TXT
-
-notelib = pd.read_csv('note-lib.txt', sep="\s", header=None)
-notelib.columns = ["Note", "Freq", "fmin", "fmax"]
-
 #%% PASS FREQS THROUGH LIBRARY TO IDENTIFY NOTES
 
-# ts = freqframe['Timestamp'][0]
-# rows = freqframe.where(freqframe['Timestamp'] == ts)
-# for row in freqframe:
-
-# length = len(strongpoints[:,0])    
-# ts = strongpoints[0][0]
-# #?????
-#     rows = np.where(strongpoints[:,0] == ts)[0]
-#     notes = []
-#     for idx in rows:
-#         freq = strongpoints[:,1][idx]
-#         r = 0
-#         match = False
-#         while not match:
-#             if not notelib['fmin'][r] < freq < notelib['fmax'][r]:
-#                 r += 1
-#             else:
-#                 note = notelib['Note'][r]
-#                 match = True
-#         notes.append(note)
-#     ts = strongpoints[0][rows[-1]+1]
-
-#%% PASS FREQS THROUGH LIBRARY TO IDENTIFY NOTES
-
-for key in sps:
-    notes = []
-    for freq in sps[key]['freqs']:
-        r = 0
-        match = False
-        while not match:
-            if not notelib['fmin'][r] < freq < notelib['fmax'][r]:
-                r += 1
-            else:
-                note = notelib['Note'][r]
-                match = True
-        notes.append(note)
-    sps[key]['notes'] = notes
+sps = tools.get_notes(sps, notelib_88)
     
-
-
+#%% CHROMA COVARIANCE PLOT
     
-    
+ccov = np.cov(spec_db)
+fig, ax = plt.subplots()
+cp = lb.display.specshow(ccov, y_axis='chroma', x_axis='chroma',
+                               key='D:maj', ax=ax)
+ax.set(title='Chroma covariance matrix')
+fig.colorbar(cp, ax=ax)
 
 

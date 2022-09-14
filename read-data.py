@@ -48,9 +48,9 @@ plt.plot(raw, lw=1)
 
 #%% COMPUTE MELODIC SPECTROGRAM AND SAVE TO CSV
 
-melspec = lb.feature.melspectrogram(raw, sr=sr, n_mels = 512)
+melspec = lb.feature.melspectrogram(y=raw, sr=sr, fmin=27, fmax=4200, n_mels=88)
 melspecframe = pd.DataFrame(melspec)
-melspecframe.to_csv('matilda-melspec.csv')
+melspecframe.to_csv('data/matilda-melspec.csv')
 
 #%%
 
