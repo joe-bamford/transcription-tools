@@ -2,9 +2,9 @@
 """
 Created on Sun Aug 28 18:54:01 2022
 
-@author: Joe
+@author: bamjoe
 """
-#hi
+
 import numpy as np
 import seaborn as sb
 import yellowbrick as sb

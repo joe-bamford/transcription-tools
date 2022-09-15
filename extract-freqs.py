@@ -2,22 +2,8 @@
 """
 Created on Sun Aug 28 18:48:35 2022
 
-@author: Joe
+@author: bamjoe
 """
-
-import numpy as np
-import seaborn as sb
-import yellowbrick as sb
-import librosa as lb
-import time
-import glob
-import scipy
-from scipy import signal as sg
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import pandas as pd
-import librosa.display as lbd
-from IPython.display import Audio
 
 from tools import *
 
@@ -58,13 +44,6 @@ for sample in subsamples:
         # pkp[i] = peakvals
     i+=1
 
-# build array of 3-vectors for strong peaks
-# filt2d = tools.dic_to_coords(sps)
-# filtpowers = tools.dic_to_coords(pkp)
-# strongpoints = np.hstack((filt2d, filtpowers))
-# strongpoints = np.delete(strongpoints, 2, axis=1)
-# freqframe = pd.DataFrame(strongpoints, columns=['Timestamp', 'Frequency', 'Power'])
-
 #%% PLOT ANY SPECTRUM
 
 s = int(input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): '))
@@ -72,22 +51,22 @@ sp = spec_db[:,s]
 
 specfig = plt.figure(figsize=(12,8))
 plt.plot(sp, label='Spectrum')
-plt.legend(loc='best')
 plt.xlabel('Freq / Hz')
 plt.ylabel('dB')
-plt.scatter(sps[s]['freqs'], sp[sps[s]['freqs']],c='r')
+plt.xlim(frdown)
+plt.scatter(sps[s]['freqs'], sp[sps[s]['freqs']],c='r',label='Strongest freqs')
+plt.legend(loc='best')
 
 #%% PASS FREQS THROUGH LIBRARY TO IDENTIFY NOTES
 
-sps = tools.get_notes(sps, notelib_88)
+sps = tools.get_notes(sps, notelib)
     
 #%% CHROMA COVARIANCE PLOT
     
 ccov = np.cov(spec_db)
 fig, ax = plt.subplots()
-cp = lb.display.specshow(ccov, y_axis='chroma', x_axis='chroma',
-                               key='D:maj', ax=ax)
-ax.set(title='Chroma covariance matrix')
+cp = lb.display.specshow(ccov, y_axis='chroma', x_axis='chroma', key='D:maj', ax=ax)
+ax.set(title='Chroma covariance heatmap')
 fig.colorbar(cp, ax=ax)
 
 
