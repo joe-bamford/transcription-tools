@@ -25,6 +25,14 @@ abs_spec, ax = plt.subplots(figsize=(20,10))
 specplot = lb.display.specshow(spec_db,x_axis='time',y_axis='chroma',key='D:maj',ax=ax)
 abs_spec.colorbar(specplot, ax=ax, format="%+2.f dB")
 
+#%% LOAD CHROMA DECOMP AND PLOT
+
+file2 = 'data/matilda-chroma.csv'
+chroma = pd.read_csv(file2).to_numpy()
+chroma = np.delete(chroma, 0, axis=1)
+fig, ax = plt.subplots(nrows=1, sharex=True)
+img = lb.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax, key='D:maj')
+
 #%% FIND PEAK FREQS
 
 subsamples = np.arange(0, len(spec_db[0]), 1)

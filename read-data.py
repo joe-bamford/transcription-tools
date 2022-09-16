@@ -34,15 +34,17 @@ notelib.columns = ["Note", "Freq", "fmin", "fmax"]
 # notelib = notelib.iloc[9:97]
 frdown, frup = notelib.iloc[0]['fmin'], notelib.iloc[-1]['fmax']
 
-#%% COMPUTE FFT AND SAVE RAW SPECTROGRAM TO CSV
-
-# spec = np.abs(lb.stft(raw, hop_length = 20))
-# specframe = pd.DataFrame(spec)
-# specframe.to_csv('matilda-spec.csv')
-
 #%% COMPUTE MELODIC SPECTROGRAM AND SAVE TO CSV
 
 melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//4, fmin=1, fmax=5000, n_mels=108)
 melspecframe = pd.DataFrame(melspec)
 melspecframe.to_csv('data/matilda-melspec.csv')
+
+#%% COMPUTE CHROMA STFT AND SAVE TO CSV
+
+S = np.abs(lb.stft(y=raw, n_fft=2048))**2
+chroma = lb.feature.chroma_stft(S=S, sr=sr)
+chromaframe = pd.DataFrame(chroma)
+chromaframe.to_csv('data/matilda-chroma.csv')
+
 
