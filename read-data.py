@@ -50,7 +50,7 @@ frdown, frup = notelib.iloc[0]['fmin'], notelib.iloc[-1]['fmax']
 
 #%% COMPUTE MELODIC SPECTROGRAM AND SAVE TO CSV
 
-melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//20, fmin=1, fmax=5000)
+melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//20, power=1)
 melspecframe = pd.DataFrame(melspec)
 melspecframe.to_csv('data/'+str(kw)+'-melspec.csv')
 

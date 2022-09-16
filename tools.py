@@ -18,6 +18,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import librosa.display as lbd
 from IPython.display import Audio
+import pychord as pc
 
 #%%
 
