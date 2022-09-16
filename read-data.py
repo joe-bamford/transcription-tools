@@ -25,10 +25,21 @@ clip_length = raw.size/sr
 
 #%% PLOT TIME SERIES
 
-raw_ts = plt.figure(figsize=(15,10))
-plt.title('Raw time series')
-plt.xlabel('Sample')
-plt.plot(raw, lw=1)
+# raw_ts = plt.figure(figsize=(15,10))
+# plt.title('Raw time series')
+# plt.xlabel('Sample')
+# plt.plot(raw, lw=1)
+
+#%% SPLIT HARMONIC AND PERCUSSIVE COMPONENTS, PLOT TIME SERIES
+
+fig, ax = plt.subplots(nrows=1, sharex=True)
+y_harm, y_perc = lb.effects.hpss(raw)
+lb.display.waveshow(y_harm, sr=sr, alpha=0.5, ax=ax, label='Harmonic')
+lb.display.waveshow(y_perc, sr=sr, color='r', alpha=0.5, ax=ax, label='Percussive')
+ax.set(title='Harmonic and percussive waveforms')
+ax.legend(loc='best')
+
+raw = y_harm
 
 #%% READ IN NOTE LIBRARY FROM TXT
 
@@ -39,14 +50,14 @@ frdown, frup = notelib.iloc[0]['fmin'], notelib.iloc[-1]['fmax']
 
 #%% COMPUTE MELODIC SPECTROGRAM AND SAVE TO CSV
 
-melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//10, fmin=1, fmax=5000, n_mels=108)
+melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//20, fmin=1, fmax=5000)
 melspecframe = pd.DataFrame(melspec)
 melspecframe.to_csv('data/'+str(kw)+'-melspec.csv')
 
 #%% COMPUTE CHROMA STFT AND SAVE TO CSV
 
 S = np.abs(lb.stft(y=raw, n_fft=2048))**2
-chroma = lb.feature.chroma_stft(S=S, sr=sr)
+chroma = lb.feature.chroma_stft(S=S, sr=sr, n_chroma=24)
 chromaframe = pd.DataFrame(chroma)
 chromaframe.to_csv('data/'+str(kw)+'-chroma.csv')
 

@@ -35,8 +35,14 @@ class tools:
                         r += 1
                     else:
                         note = notelib['Note'][r]
+                        # Remove numbers from note names and trim off after slash
+                        note = ''.join([i for i in note if not i.isdigit()]).split('/', 1)[0]
                         match = True
-                notes.append(note)
+                # Ensure no duplicates
+                if not note in notes:
+                    notes.append(note)
+                else:
+                    continue
             freqdict[key]['notes'] = notes
         return freqdict
     
