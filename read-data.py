@@ -12,7 +12,10 @@ plt.close('all')
 
 #%% READ FILE
 
-data = 'data/matilda.wav'
+kws = ['matilda', 'mgr', 'mgr-lick']
+sel = int(input('Select audio file: \n\n(1) '+str(kws[0])+'\n(2) '+str(kws[1])+'\n(3) '+str(kws[2])+'\n\n'))
+kw = kws[sel-1]
+data = 'data/'+str(kw)+'.wav'
 raw, sr = lb.load(data)
 # Length of audio clip in secs
 clip_length = raw.size/sr
@@ -36,15 +39,15 @@ frdown, frup = notelib.iloc[0]['fmin'], notelib.iloc[-1]['fmax']
 
 #%% COMPUTE MELODIC SPECTROGRAM AND SAVE TO CSV
 
-melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//4, fmin=1, fmax=5000, n_mels=108)
+melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//10, fmin=1, fmax=5000, n_mels=108)
 melspecframe = pd.DataFrame(melspec)
-melspecframe.to_csv('data/matilda-melspec.csv')
+melspecframe.to_csv('data/'+str(kw)+'-melspec.csv')
 
 #%% COMPUTE CHROMA STFT AND SAVE TO CSV
 
 S = np.abs(lb.stft(y=raw, n_fft=2048))**2
 chroma = lb.feature.chroma_stft(S=S, sr=sr)
 chromaframe = pd.DataFrame(chroma)
-chromaframe.to_csv('data/matilda-chroma.csv')
+chromaframe.to_csv('data/'+str(kw)+'-chroma.csv')
 
 

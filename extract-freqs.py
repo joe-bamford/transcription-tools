@@ -8,6 +8,22 @@ Created on Sun Aug 28 18:48:35 2022
 from tools import *
 plt.close('all')
 
+#%% FILE SELECTION
+
+kws = ['matilda', 'mgr', 'mgr-lick']
+sel = int(input('Select audio file: \n\n(1) '+str(kws[0])+'\n(2) '+str(kws[1])+'\n(3) '+str(kws[2])+'\n\n'))
+kw = kws[sel-1]
+
+#%% INPUT KEY
+
+key = str(input('Enter key: '))
+
+if 'm' in key:
+    key = key.replace('m','')
+    key = key+':min'
+else:
+    key = key+':maj'
+
 #%% READ IN NOTE LIBRARY FROM TXT
 
 notelib = pd.read_csv('note-lib.txt', sep="\s", header=None)
@@ -17,21 +33,21 @@ frdown, frup = notelib.iloc[0]['fmin'], notelib.iloc[-1]['fmax']
 
 #%% LOAD MELODIC SPECTROGRAM AND PLOT
 
-file1 = 'data/matilda-melspec.csv'
-spec = pd.read_csv(file1).to_numpy()
+melfile = 'data/'+str(kw)+'-melspec.csv'
+spec = pd.read_csv(melfile).to_numpy()
 spec = np.delete(spec, 0, axis=1)
 spec_db = lb.amplitude_to_db(np.abs(spec), ref=np.max(spec))
 abs_spec, ax = plt.subplots(figsize=(20,10))
-specplot = lb.display.specshow(spec_db,x_axis='time',y_axis='chroma',key='D:maj',ax=ax)
+specplot = lb.display.specshow(spec_db, x_axis='time', y_axis='chroma', key=key, ax=ax)
 abs_spec.colorbar(specplot, ax=ax, format="%+2.f dB")
 
 #%% LOAD CHROMA DECOMP AND PLOT
 
-file2 = 'data/matilda-chroma.csv'
-chroma = pd.read_csv(file2).to_numpy()
+chrfile = 'data/'+str(kw)+'-chroma.csv'
+chroma = pd.read_csv(chrfile).to_numpy()
 chroma = np.delete(chroma, 0, axis=1)
 fig, ax = plt.subplots(nrows=1, sharex=True)
-img = lb.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax, key='D:maj')
+img = lb.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax, key=key)
 
 #%% FIND PEAK FREQS
 
@@ -53,16 +69,16 @@ for sample in subsamples:
 
 #%% PLOT ANY SPECTRUM
 
-s = int(input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): '))
-sp = spec_db[:,s]
+# s = int(input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): '))
+# sp = spec_db[:,s]
 
-specfig = plt.figure(figsize=(12,8))
-plt.plot(sp, label='Spectrum')
-plt.xlabel('Freq / Hz')
-plt.ylabel('dB')
-plt.xlim(frdown)
-plt.scatter(sps[s]['freqs'], sp[sps[s]['freqs']],c='r',label='Strongest freqs')
-plt.legend(loc='best')
+# specfig = plt.figure(figsize=(12,8))
+# plt.plot(sp, label='Spectrum')
+# plt.xlabel('Freq / Hz')
+# plt.ylabel('dB')
+# plt.xlim(frdown)
+# plt.scatter(sps[s]['freqs'], sp[sps[s]['freqs']],c='r',label='Strongest freqs')
+# plt.legend(loc='best')
 
 #%% PASS FREQS THROUGH LIBRARY TO IDENTIFY NOTES
 
