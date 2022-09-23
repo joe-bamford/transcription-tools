@@ -5,27 +5,38 @@ Created on Sun Aug 28 18:48:35 2022
 @author: bamjoe
 """
 
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 from tools import *
 plt.close('all')
 sr = 22050
 
 #%% FILE SELECTION
 
-kws = ['matilda', 'mgr', 'mgr-lick']
-keys = ['D:maj', 'G:min', 'G:min']
-sel = int(input('Select audio file: \n\n(1) '+str(kws[0])+'\n(2) '+str(kws[1])+'\n(3) '+str(kws[2])+'\n\n'))
-kw = kws[sel-1]
-key = keys[sel-1]
+print("Please choose an audio file")
+Tk().withdraw() 
+file = askopenfilename() #Lets user search for datacube file
+print(file)
+
+# kws = ['matilda', 'mgr', 'mgr-lick', 'test-A']
+# sel = int(input('Select audio file: \n\n(1) '+str(kws[0])+'\n(2) '+str(kws[1])+'\n(3) '+str(kws[2])+'\n(4) '+str(kws[3])+'\n\n'))
+# kw = kws[sel-1]
+# data = 'data/'+str(kw)+'.wav'
+
+raw, sr = lb.load(file)
+filename = file.split('/')[-1].split('.')[0]
+# Length of audio clip in secs
+clip_length = raw.size/sr
 
 #%% INPUT KEY
 
-# key = str(input('Enter key: '))
+key = str(input('Enter key: '))
 
-# if 'm' in key:
-#     key = key.replace('m','')
-#     key = key+':min'
-# else:
-#     key = key+':maj'
+if 'm' in key:
+    key = key.replace('m','')
+    key = key+':min'
+else:
+    key = key+':maj'
 
 #%% READ IN NOTE LIBRARY FROM TXT
 
@@ -38,35 +49,35 @@ frup = 5000
 
 #%% LOAD MELODIC SPECTROGRAM AND PLOT
 
-melfile = 'data/'+str(kw)+'-melspec.csv'
+melfile = 'data/'+str(filename)+'-melspec.csv'
 spec = pd.read_csv(melfile).to_numpy()
 spec = np.delete(spec, 0, axis=1)
 spec_db = lb.amplitude_to_db(np.abs(spec), ref=np.max(spec))
 abs_spec, ax = plt.subplots(figsize=(20,10))
-specplot = lb.display.specshow(spec_db, x_axis='time', y_axis='mel', key=key, ax=ax, hop_length=sr//20, sr=sr)
+specplot = lb.display.specshow(spec_db, x_axis='time', y_axis='chroma', key=key, ax=ax, hop_length=sr//20, sr=sr, fmin=frdown, fmax=frup)
 abs_spec.colorbar(specplot, ax=ax, format="%+2.f dB")
 # Get y limits for later plotting of individual spectra
 yl = ax.get_ylim()
 
 #%% LOAD CHROMA DECOMP AND PLOT
 
-chrfile = 'data/'+str(kw)+'-chroma.csv'
+chrfile = 'data/'+str(filename)+'-chroma.csv'
 chroma = pd.read_csv(chrfile).to_numpy()
 chroma = np.delete(chroma, 0, axis=1)
 fig, ax = plt.subplots(nrows=1, sharex=True)
-img = lb.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax, key=key)
+img = lb.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax, hop_length=sr//20, key=key, fmin=frdown, fmax=frup)
 
 #%% CHROMA COVARIANCE PLOT
     
 ccov = np.cov(spec_db)
 fig, ax = plt.subplots()
-cp = lb.display.specshow(ccov, y_axis='chroma', x_axis='chroma', key='D:maj', ax=ax)
+cp = lb.display.specshow(ccov, y_axis='chroma', x_axis='chroma', key=key, ax=ax)
 ax.set(title='Chroma covariance heatmap')
 fig.colorbar(cp, ax=ax)
 
-#%% FIND PEAK FREQS
+## FIND PEAK FREQS
 
-frange = np.linspace(0, yl[1], len(spec_db[:,0]))
+frange = np.linspace(frdown, frup, len(spec_db[:,0]))
 subsamples = np.arange(0, len(spec_db[0]), 1)
 sps = {}
 # pkp = {}
