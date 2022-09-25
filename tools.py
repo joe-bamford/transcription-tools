@@ -20,7 +20,14 @@ import librosa.display as lbd
 from IPython.display import Audio
 import pychord as pc
 
-#%%
+#%% VARS
+
+fft_sr = 20
+sr = 22050
+frdown = 27.5
+frup = 5000
+
+#%% FUNCS
 
 class tools:
     
@@ -46,6 +53,16 @@ class tools:
                     continue
             freqdict[key]['notes'] = notes
         return freqdict
+    
+    # Get manual key input
+    def get_key():        
+        key = str(input('Enter key: '))
+        if 'm' in key:
+            key = key.replace('m','')
+            key = key+':min'
+        else:
+            key = key+':maj'
+        return key
     
     '''
     # Extract prominent datapoints from dicts (OUTDATED)

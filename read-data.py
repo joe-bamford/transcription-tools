@@ -11,12 +11,14 @@ from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 from tools import *
 plt.close('all')
+# FFT SAMPLE RATE (Hz)
+fft_sr = 20
 
 #%% READ FILE
 
 print("Please choose an audio file")
 Tk().withdraw() 
-file = askopenfilename() #Lets user search for datacube file
+file = askopenfilename() #Lets user search for file
 print(file)
 
 # kws = ['matilda', 'mgr', 'mgr-lick', 'test-A']
@@ -34,7 +36,7 @@ clip_length = raw.size/sr
 # raw = raw[::5]
 
 #%% PLOT TIME SERIES
-
+ 
 # raw_ts = plt.figure(figsize=(15,10))
 # plt.title('Raw time series')
 # plt.xlabel('Sample')
@@ -60,14 +62,14 @@ frdown, frup = notelib.iloc[0]['fmin'], notelib.iloc[-1]['fmax']
 
 #%% COMPUTE MELODIC SPECTROGRAM AND SAVE TO CSV
 
-melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//20, power=2, fmin=frdown, fmax=frup)
+melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//fft_sr, power=2, fmax=sr/2, n_mels=108)
 melspecframe = pd.DataFrame(melspec)
 melspecframe.to_csv('data/'+str(filename)+'-melspec.csv')
 
 #%% COMPUTE CHROMA STFT AND SAVE TO CSV
 
 S = np.abs(lb.stft(y=raw, n_fft=2048))**2
-chroma = lb.feature.chroma_stft(S=S, sr=sr, n_chroma=12)
+chroma = lb.feature.chroma_stft(S=S, sr=sr, hop_length=sr//fft_sr, n_chroma=12)
 chromaframe = pd.DataFrame(chroma)
 chromaframe.to_csv('data/'+str(filename)+'-chroma.csv')
 
