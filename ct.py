@@ -11,7 +11,8 @@ from tools import *
 
 plt.close('all')
 # FFT sample rate (Hz)
-fft_sr = 5
+fft_sr = 20
+fft_win = 4096
 
 #%% READ FILE
 
@@ -67,9 +68,8 @@ raw = y_harm
 #%% LOG-FREQ SPECTROGRAM
 
 fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False)
-spec_db = lb.amplitude_to_db(np.abs(lb.stft(raw, hop_length=sr//fft_sr)**2), ref=np.max)
-# spec_db = lb.feature.melspectrogram(S=spec_db, hop_length=sr//fft_sr, fmax=sr/2)
-img = lb.display.specshow(spec_db, y_axis='log', sr=sr, hop_length=sr//20, x_axis='time', ax=ax)
+spec_db = lb.amplitude_to_db(np.abs(lb.stft(raw, hop_length=sr//fft_sr, n_fft=fft_win)**2), ref=np.max)
+img = lb.display.specshow(spec_db, y_axis='fft_note', sr=sr, hop_length=sr//fft_sr, x_axis='time', ax=ax, n_fft=fft_win)
 ax.set(title='Log-frequency power spectrogram')
 ax.label_outer()
 fig.colorbar(img, ax=ax, format="%+2.f dB")
@@ -135,7 +135,7 @@ sp = spec_db[:,s]
 idxs = sps[s]['indices']
 
 # melfreqs = lb.mel_frequencies(n_mels=len(sp), fmin=lb.note_to_hz('A0'), fmax=lb.note_to_hz('C8'))
-fftfreqs = lb.fft_frequencies(sr=sr, n_fft=2048)
+fftfreqs = lb.fft_frequencies(sr=sr, n_fft=fft_win)
 
 specfig = plt.figure(figsize=(12,8))
 plt.plot(fftfreqs, sp, label='Spectrum')
@@ -147,7 +147,7 @@ plt.legend(loc='best')
 
 #%% IDENTIFY NOTES THEN USE PYCHORD TO GET CHORDS FROM NOTES
 
-sps = tools.get_notes(sps, notelib)
+sps = tools.get_notes(sps)
 
 for key in sps:
     notes = sps[key]['notes']

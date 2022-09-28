@@ -35,24 +35,38 @@ frup = 5000
 
 class tools:
     
-    # Get notes from freqs through the note library and add to freqdict
-    def get_notes(freqdict, notelib):
+    # # Get notes from freqs through the note library and add to freqdict
+    # def get_notes(freqdict, notelib):
+    #     for key in freqdict:
+    #         notes = []
+    #         for freq in freqdict[key]['freqs']:
+    #             r = notelib.index[0]
+    #             match = False
+    #             while not match:
+    #                 if not notelib['fmin'][r] < freq < notelib['fmax'][r]:
+    #                     r += 1
+    #                 else:
+    #                     note = notelib['Note'][r]
+    #                     # note = lb.hz_to_note(freq)
+    #                     # Remove numbers from note names and split at /
+    #                     note = ''.join([i for i in note if not i.isdigit()]).split('/', 1)[0]
+    #                     match = True
+    #             # Ensure no duplicates
+    #             if not note in notes:
+    #                 notes.append(note)
+    #             else:
+    #                 continue
+    #         freqdict[key]['notes'] = notes
+    #     return freqdict
+
+    # Get notes from freqs through librosa and add to freqdict
+    def get_notes(freqdict):
         for key in freqdict:
             notes = []
             for freq in freqdict[key]['freqs']:
-                r = notelib.index[0]
-                match = False
-                while not match:
-                    if not notelib['fmin'][r] < freq < notelib['fmax'][r]:
-                        r += 1
-                    else:
-                        # note = notelib['Note'][r]
-                        # Find note with librosa conversion
-                        note = lb.hz_to_note(freq)
-                        # Remove numbers from note names and replace annoying # character
-                        # note = ''.join([i for i in note if not i.isdigit()]).split('/', 1)[0]
-                        note = ''.join([i for i in note if not i.isdigit()]).replace('♯','#')
-                        match = True
+                note = lb.hz_to_note(freq)
+                # Remove numbers from note names and replace sharp character with hash
+                note = ''.join([i for i in note if not i.isdigit()]).replace('♯','#')
                 # Ensure no duplicates
                 if not note in notes:
                     notes.append(note)
