@@ -9,10 +9,14 @@ import numpy as np
 import seaborn as sb
 import yellowbrick as sb
 import librosa as lb
+import math
 import time
 import glob
 import scipy
 from scipy import signal as sg
+from scipy import optimize as opt
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
@@ -42,9 +46,12 @@ class tools:
                     if not notelib['fmin'][r] < freq < notelib['fmax'][r]:
                         r += 1
                     else:
-                        note = notelib['Note'][r]
-                        # Remove numbers from note names and trim off after slash
-                        note = ''.join([i for i in note if not i.isdigit()]).split('/', 1)[0]
+                        # note = notelib['Note'][r]
+                        # Find note with librosa conversion
+                        note = lb.hz_to_note(freq)
+                        # Remove numbers from note names and replace annoying # character
+                        # note = ''.join([i for i in note if not i.isdigit()]).split('/', 1)[0]
+                        note = ''.join([i for i in note if not i.isdigit()]).replace('♯','#')
                         match = True
                 # Ensure no duplicates
                 if not note in notes:
@@ -56,9 +63,9 @@ class tools:
     
     # Get manual key input
     def get_key():        
-        key = str(input('Enter key: '))
-        if 'm' in key:
-            key = key.replace('m','')
+        key = str(input('Enter key: ').upper())
+        if 'M' in key:
+            key = key.replace('M','')
             key = key+':min'
         else:
             key = key+':maj'

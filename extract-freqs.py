@@ -5,8 +5,6 @@ Created on Sun Aug 28 18:48:35 2022
 @author: bamjoe
 """
 
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
 from tools import *
 plt.close('all')
 
@@ -38,6 +36,7 @@ notelib.columns = ["Note", "Freq", "fmin", "fmax"]
 # notelib = notelib.iloc[9:97]
 # frdown, frup = notelib.iloc[0]['fmin'], notelib.iloc[-1]['fmax']
 frq = notelib['Freq'].to_numpy()
+nums = np.arange(0, len(frq), 1)
 
 #%% LOAD MELODIC SPECTROGRAM AND PLOT
 
@@ -50,6 +49,23 @@ specplot = lb.display.specshow(spec_db, x_axis='time', y_axis='mel', key=key, ax
 abs_spec.colorbar(specplot, ax=ax, format="%+2.f dB")
 # Get y limits for later plotting of individual spectra
 yl = ax.get_ylim()
+
+#%% FIT FREQUENCY CURVE
+
+def func(x, a, b, c):
+    # f = a*b**(x) + c
+    base = 2**(1/12)
+    # f = a*(np.log(b*x)/np.log(base)) + c
+    f = a*math.log(b*x, base) + c          #?????
+    return f
+
+fit = opt.curve_fit(func, frq, nums)[0]
+fig = plt.figure()
+plt.scatter(frq, nums)
+lr = np.linspace(0, 10000, 1000)
+plt.plot(func(lr, fit[0], fit[1], fit[2]))
+
+# flim = 
 
 #%% LOAD CHROMA DECOMP AND PLOT
 

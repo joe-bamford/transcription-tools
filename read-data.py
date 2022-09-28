@@ -7,8 +7,6 @@ Created on Mon Aug 15 12:14:49 2022
 INSPIRED BY TUTORIAL BY MEDALLION DATA SCIENCE: https://www.youtube.com/watch?v=ZqpSb5p1xQo
 """
 
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
 from tools import *
 plt.close('all')
 # FFT SAMPLE RATE (Hz)
