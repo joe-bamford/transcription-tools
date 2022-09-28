@@ -11,7 +11,7 @@ from tools import *
 
 plt.close('all')
 # FFT sample rate (Hz)
-fft_sr = 20
+fft_sr = 10
 fft_win = 4096
 
 #%% READ FILE
@@ -115,7 +115,7 @@ sps = {}
 i=0
 for sample in subsamples:
     sp = spec_db[:,sample]
-    peaks = sg.find_peaks(sp, prominence=10)[0]
+    peaks = sg.find_peaks(sp, prominence=30)[0]
     freqs = frange[peaks]
     # peakvals = sp[peaks]
     # Remove values outside frequency range of the piano
@@ -129,8 +129,7 @@ for sample in subsamples:
 #%% PLOT ANY SPECTRUM
 
 s = int(input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): '))
-spectime = clip_length*s/(len(subsamples)-1)
-print('Spectrum at t =', spectime, 's')
+spectime = np.around(clip_length*s/(len(subsamples)-1),2)
 sp = spec_db[:,s]
 idxs = sps[s]['indices']
 
@@ -143,6 +142,7 @@ plt.xscale('log')
 plt.xlabel('Freq / Hz')
 plt.ylabel('dB')
 plt.scatter(fftfreqs[idxs], sp[idxs],c='r',label='Strongest frequencies')
+plt.title('Spectrum '+str(s)+' at t ='+str(spectime)+'s', fontsize=20)
 plt.legend(loc='best')
 
 #%% IDENTIFY NOTES THEN USE PYCHORD TO GET CHORDS FROM NOTES

@@ -24,6 +24,18 @@ import librosa.display as lbd
 from IPython.display import Audio
 import pychord as pc
 
+#Font and style
+plt.rcParams.update({
+    "text.usetex": False,
+    "font.family": "serif",
+    'font.size': 14,
+    "font.sans-serif": ["Computer Modern Roman"]})
+
+plt.rcParams['mathtext.fontset'] = 'cm'
+plt.rcParams['mathtext.rm'] = 'Computer Modern Roman'
+plt.rcParams['mathtext.it'] = 'Computer Modern Roman:italic'
+plt.rcParams['mathtext.bf'] = 'Computer Modern Roman:bold'
+
 #%% VARS
 
 fft_sr = 20
