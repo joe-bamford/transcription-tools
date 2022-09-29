@@ -5,6 +5,8 @@ Created on Sun Aug 28 18:54:01 2022
 @author: bamjoe
 """
 
+#%% IMPORTS AND SETUP
+
 import numpy as np
 import seaborn as sb
 import yellowbrick as sb
@@ -24,7 +26,7 @@ import librosa.display as lbd
 from IPython.display import Audio
 import pychord as pc
 
-#Font and style
+# Font and style
 plt.rcParams.update({
     "text.usetex": False,
     "font.family": "serif",
@@ -35,6 +37,7 @@ plt.rcParams['mathtext.fontset'] = 'cm'
 plt.rcParams['mathtext.rm'] = 'Computer Modern Roman'
 plt.rcParams['mathtext.it'] = 'Computer Modern Roman:italic'
 plt.rcParams['mathtext.bf'] = 'Computer Modern Roman:bold'
+plt.rcParams["axes.grid"] = True
 
 #%% VARS
 
@@ -46,30 +49,6 @@ frup = 5000
 #%% FUNCS
 
 class tools:
-    
-    # # Get notes from freqs through the note library and add to freqdict
-    # def get_notes(freqdict, notelib):
-    #     for key in freqdict:
-    #         notes = []
-    #         for freq in freqdict[key]['freqs']:
-    #             r = notelib.index[0]
-    #             match = False
-    #             while not match:
-    #                 if not notelib['fmin'][r] < freq < notelib['fmax'][r]:
-    #                     r += 1
-    #                 else:
-    #                     note = notelib['Note'][r]
-    #                     # note = lb.hz_to_note(freq)
-    #                     # Remove numbers from note names and split at /
-    #                     note = ''.join([i for i in note if not i.isdigit()]).split('/', 1)[0]
-    #                     match = True
-    #             # Ensure no duplicates
-    #             if not note in notes:
-    #                 notes.append(note)
-    #             else:
-    #                 continue
-    #         freqdict[key]['notes'] = notes
-    #     return freqdict
 
     # Get notes from freqs through librosa and add to freqdict
     def get_notes(freqdict):
@@ -108,4 +87,29 @@ class tools:
                 filtvals.append(coord)
             j+=1
         return np.array(filtvals)
+    
+    
+    # Get notes from freqs through the note library and add to freqdict (OUTDATED)
+    def get_notes(freqdict, notelib):
+        for key in freqdict:
+            notes = []
+            for freq in freqdict[key]['freqs']:
+                r = notelib.index[0]
+                match = False
+                while not match:
+                    if not notelib['fmin'][r] < freq < notelib['fmax'][r]:
+                        r += 1
+                    else:
+                        note = notelib['Note'][r]
+                        # note = lb.hz_to_note(freq)
+                        # Remove numbers from note names and split at /
+                        note = ''.join([i for i in note if not i.isdigit()]).split('/', 1)[0]
+                        match = True
+                # Ensure no duplicates
+                if not note in notes:
+                    notes.append(note)
+                else:
+                    continue
+            freqdict[key]['notes'] = notes
+        return freqdict
     '''

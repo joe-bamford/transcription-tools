@@ -72,6 +72,7 @@ spec_db = lb.amplitude_to_db(np.abs(lb.stft(raw, hop_length=sr//fft_sr, n_fft=ff
 img = lb.display.specshow(spec_db, y_axis='fft_note', sr=sr, hop_length=sr//fft_sr, x_axis='time', ax=ax, n_fft=fft_win)
 ax.set(title='Log-frequency power spectrogram')
 ax.label_outer()
+# ax.grid(visible=True, which='major', axis='x', alpha=1, color='white')
 fig.colorbar(img, ax=ax, format="%+2.f dB")
 yl = ax.get_ylim()
 
@@ -87,6 +88,13 @@ yl = ax.get_ylim()
 # att = [getattr(yax, attname[s]) for s in range(len(attname))]
 
 #%% LOAD MELODIC SPECTROGRAM AND PLOT
+#%% COMPUTE CHROMA STFT AND SAVE TO CSV
+
+S = np.abs(lb.stft(y=raw, n_fft=2048))**2
+chroma = lb.feature.chroma_stft(S=S, sr=sr, hop_length=sr//fft_sr, n_chroma=12)
+chromaframe = pd.DataFrame(chroma)
+chromaframe.to_csv('data/'+str(filename)+'-chroma.csv')
+
 
 # melfile = 'data/'+str(filename)+'-melspec.csv'
 # spec = pd.read_csv(melfile).to_numpy()
@@ -142,14 +150,35 @@ plt.xscale('log')
 plt.xlabel('Freq / Hz')
 plt.ylabel('dB')
 plt.scatter(fftfreqs[idxs], sp[idxs],c='r',label='Strongest frequencies')
-plt.title('Spectrum '+str(s)+' at t ='+str(spectime)+'s', fontsize=20)
+plt.title('Spectrum '+str(s)+' at t = '+str(spectime)+'s', fontsize=20)
 plt.legend(loc='best')
 
 #%% IDENTIFY NOTES THEN USE PYCHORD TO GET CHORDS FROM NOTES
 
 sps = tools.get_notes(sps)
 
-for key in sps:
-    notes = sps[key]['notes']
-    sps[key]['chord'] = pc.find_chords_from_notes(notes)
+# New dict containing only entries with 3 or more notes
+chord_dict = {key: entries for key, entries in sps.items() if len(sps[key]['notes']) >= 3}
+for key in chord_dict:
+    chord_dict[key]['chord'] = pc.find_chords_from_notes(chord_dict[key]['notes'])
+
+#%% TEST CELL
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
     
