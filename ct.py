@@ -136,31 +136,35 @@ for sample in subsamples:
     
 #%% PLOT ANY SPECTRUM
 
-s = int(input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): '))
-spectime = np.around(clip_length*s/(len(subsamples)-1),2)
-sp = spec_db[:,s]
-idxs = sps[s]['indices']
-
-# melfreqs = lb.mel_frequencies(n_mels=len(sp), fmin=lb.note_to_hz('A0'), fmax=lb.note_to_hz('C8'))
-fftfreqs = lb.fft_frequencies(sr=sr, n_fft=fft_win)
-
-specfig = plt.figure(figsize=(12,8))
-plt.plot(fftfreqs, sp, label='Spectrum')
-plt.xscale('log')
-plt.xlabel('Freq / Hz')
-plt.ylabel('dB')
-plt.scatter(fftfreqs[idxs], sp[idxs],c='r',label='Strongest frequencies')
-plt.title('Spectrum '+str(s)+' at t = '+str(spectime)+'s', fontsize=20)
-plt.legend(loc='best')
+s = input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): ')
+if type(s) is int:
+    spectime = np.around(clip_length*s/(len(subsamples)-1),2)
+    sp = spec_db[:,s]
+    idxs = sps[s]['indices']
+    
+    # melfreqs = lb.mel_frequencies(n_mels=len(sp), fmin=lb.note_to_hz('A0'), fmax=lb.note_to_hz('C8'))
+    fftfreqs = lb.fft_frequencies(sr=sr, n_fft=fft_win)
+    
+    specfig = plt.figure(figsize=(12,8))
+    plt.plot(fftfreqs, sp, label='Spectrum')
+    plt.xscale('log')
+    plt.xlabel('Freq / Hz')
+    plt.ylabel('dB')
+    plt.scatter(fftfreqs[idxs], sp[idxs],c='r',label='Strongest frequencies')
+    plt.title('Spectrum '+str(s)+' at t = '+str(spectime)+'s', fontsize=20)
+    plt.legend(loc='best')
+elif type(s) is None:
+    pass
 
 #%% IDENTIFY NOTES THEN USE PYCHORD TO GET CHORDS FROM NOTES
+from tools import *
 
 sps = tools.get_notes(sps)
 
 # New dict containing only entries with 3 or more notes
-chord_dict = {key: entries for key, entries in sps.items() if len(sps[key]['notes']) >= 3}
-for key in chord_dict:
-    chord_dict[key]['chord'] = pc.find_chords_from_notes(chord_dict[key]['notes'])
+cd = {key: entries for key, entries in sps.items() if len(sps[key]['notes']) >= 3}
+for key in cd:
+    cd[key]['chord'] = pc.find_chords_from_notes(cd[key]['notes'])
 
 #%% TEST CELL
 

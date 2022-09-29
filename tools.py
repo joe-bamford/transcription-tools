@@ -49,6 +49,13 @@ frup = 5000
 #%% FUNCS
 
 class tools:
+    
+    # Read chord from chord_dict by sample no.
+    def crd(cd, sample):
+        if not sample in cd.keys():
+            print(sample,': N/C')
+        else:
+            print(sample,': ',cd[sample]['chord'])
 
     # Get notes from freqs through librosa and add to freqdict
     def get_notes(freqdict):
