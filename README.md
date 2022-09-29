@@ -1,10 +1,17 @@
 # chord-transcriber (WIP)
 
-# Aim
-## To identify chords from songs recorded as .wav files.
+## List of module dependencies
+- numpy
+- matplotlib
+- tkinter
+- pychord
+- librosa
 
-# Current functionality of _ct.py_
-## Loads a .wav and splits the waveform into harmonic and percussive components, computes a fast Fourier transform at many time samples to generate and plot a log-scaled spectrogram, picks out the strongest frequencies in each spectrum and maps these to notes.
+## Aim
+To identify chords from songs recorded as .wav files.
 
-# Desired functionality
-## To map each set of notes to a chord.
+## Current functionality of _ct.py_
+Loads a .wav and splits the waveform into harmonic and percussive components, computes a fast Fourier transform at many time samples to generate and plot a log-scaled spectrogram, picks out the strongest frequencies in each spectrum and maps these to notes.
+
+## Desired functionality
+To map each set of notes to a chord.
