@@ -44,27 +44,6 @@ ax.legend(loc='best')
 
 raw = y_harm
 
-#%% READ IN NOTE LIBRARY FROM TXT
-
-# notelib = pd.read_csv('note-lib.txt', sep="\s", header=None)
-# notelib.columns = ["Note", "Freq", "fmin", "fmax"]
-# # notelib = notelib.iloc[9:97]
-# frdown, frup = notelib.iloc[0]['fmin'], notelib.iloc[-1]['fmax']
-
-#%% COMPUTE MELODIC SPECTROGRAM AND SAVE TO CSV
-
-# melspec = lb.feature.melspectrogram(y=raw, sr=sr, hop_length=sr//fft_sr, power=2, fmax=sr/2, n_mels=108)
-# melspecframe = pd.DataFrame(melspec)
-# melspecframe.to_csv('data/'+str(filename)+'-melspec.csv')
-
-# #%% COMPUTE CHROMA STFT AND SAVE TO CSV
-
-# S = np.abs(lb.stft(y=raw, n_fft=2048))**2
-# chroma = lb.feature.chroma_stft(S=S, sr=sr, hop_length=sr//fft_sr, n_chroma=12)
-# chromaframe = pd.DataFrame(chroma)
-# chromaframe.to_csv('data/'+str(filename)+'-chroma.csv')
-
-
 #%% LOG-FREQ SPECTROGRAM
 
 fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False)
@@ -76,40 +55,12 @@ ax.label_outer()
 fig.colorbar(img, ax=ax, format="%+2.f dB")
 yl = ax.get_ylim()
 
-#%% GET Y-AXIS ATTRIBUTES FROM SPECTROGRAM
+#%% LOAD CHROMA DECOMP AND PLOT
 
-# # Y-axis object
-# yax = ax.yaxis
-# # List of attribute names for yax object...
-# attname = dir(yax)
-# # ...that contain 'get'
-# attname = [i for i in attname if 'get' in i]
-# # List of above attributes
-# att = [getattr(yax, attname[s]) for s in range(len(attname))]
-
-#%% LOAD MELODIC SPECTROGRAM AND PLOT
-#%% COMPUTE CHROMA STFT AND SAVE TO CSV
+# #%% COMPUTE CHROMA STFT AND SAVE TO CSV
 
 S = np.abs(lb.stft(y=raw, n_fft=2048))**2
 chroma = lb.feature.chroma_stft(S=S, sr=sr, hop_length=sr//fft_sr, n_chroma=12)
-chromaframe = pd.DataFrame(chroma)
-chromaframe.to_csv('data/'+str(filename)+'-chroma.csv')
-
-
-# melfile = 'data/'+str(filename)+'-melspec.csv'
-# spec = pd.read_csv(melfile).to_numpy()
-# spec = np.delete(spec, 0, axis=1)
-# spec_db = lb.amplitude_to_db(np.abs(spec), ref=np.max(spec))
-# abs_spec, ax = plt.subplots(figsize=(20,10))
-# specplot = lb.display.specshow(spec_db, x_axis='time', y_axis='mel', key=key, ax=ax, hop_length=sr//fft_sr, sr=sr, fmax=sr/2)
-# abs_spec.colorbar(specplot, ax=ax, format="%+2.f dB")
-# # Get y limits for later plotting of individual spectra
-# yl = ax.get_ylim()
-
-#%% LOAD CHROMA DECOMP AND PLOT
-
-chrfile = 'data/'+str(filename)+'-chroma.csv'
-chroma = pd.read_csv(chrfile).to_numpy()
 chroma = np.delete(chroma, 0, axis=1)
 fig, ax = plt.subplots(nrows=1, sharex=True)
 img = lb.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax, hop_length=sr//fft_sr, key=key, fmin=frdown, fmax=frup)
@@ -161,13 +112,25 @@ from tools import *
 
 sps = tools.get_notes(sps)
 
+rap = {}
 # New dict containing only entries with 3 or more notes
 cd = {key: entries for key, entries in sps.items() if len(sps[key]['notes']) >= 3}
+# Find simpler chords on first pass and write to dict
 for key in cd:
-    cd[key]['chord'] = pc.find_chords_from_notes(cd[key]['notes'])
+    cd[key]['chord'] = pc.find_chords_from_notes(cd[key]['notes'], rap, key, slash='n')
+
+#%%
+
+# Now deal with awkward slash chords
+empties = [key for key in cd.keys() if not cd[key]['chord']]
+for key in empties:
+    notes = np.array(cd[key]['notes'])
+    top_notes = notes[1:].tolist()
+    cd[key]['chord'] = pc.find_chords_from_notes(top_notes, rap, key, slash=notes[0])
 
 #%% TEST CELL
 
+duffs = {key: entries for key, entries in cd.items() if not cd[key]['chord']}
 
 
 

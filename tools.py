@@ -76,6 +76,9 @@ class tools:
     # Get manual key input
     def get_key():        
         key = str(input('Enter key: ').upper())
+        # if type(key) is None:
+        #     print('none')
+        #     key = 'C'
         if 'M' in key:
             key = key.replace('M','')
             key = key+':min'
