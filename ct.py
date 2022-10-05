@@ -33,7 +33,7 @@ clip_length = raw.size/sr
 # Input key
 key = tools.get_key()
 
-#%% SPLIT HARMONIC AND PERCUSSIVE COMPONENTS, PLOT TIME SERIES
+#%% SPLIT HARMONIC AND PERCUSSIVE COMPONENTS, PLOT TIME SERIES, GET TEMPO
 
 fig, ax = plt.subplots(nrows=1, sharex=True)
 y_harm, y_perc = lb.effects.hpss(raw)
@@ -42,6 +42,11 @@ lb.display.waveshow(y_perc, sr=sr, color='r', alpha=0.5, ax=ax, label='Percussiv
 ax.set(title='Harmonic and percussive waveforms')
 ax.legend(loc='best')
 
+# Tempo estimation
+tempo = lb.beat.tempo(y=raw, sr=sr)
+tempo_rounded = np.around(tempo, 0)
+
+# Use harmonic component from here on
 raw = y_harm
 
 #%% LOG-FREQ SPECTROGRAM
@@ -130,6 +135,7 @@ for key in empties:
 
 #%% TEST CELL
 
+# Unidentified note lists (probably not chords)
 duffs = {key: entries for key, entries in cd.items() if not cd[key]['chord']}
 
 
