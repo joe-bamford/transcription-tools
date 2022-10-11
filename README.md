@@ -6,6 +6,7 @@
 - tkinter
 - pychord
 - librosa
+- pandas
 
 ## Aim
 To identify chords from songs recorded as .wav files.
