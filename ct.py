@@ -8,13 +8,9 @@ INSPIRED BY TUTORIAL BY MEDALLION DATA SCIENCE: https://www.youtube.com/watch?v=
 """
 
 from tools import *
-
 plt.close('all')
-# FFT sample rate (Hz)
-fft_sr = 10
-fft_win = 4096
 
-#%% READ FILE
+#%% WELCOME AND READ FILE
 
 print("Please choose an audio file")
 Tk().withdraw() 
@@ -22,6 +18,7 @@ Tk().withdraw()
 file = askopenfilename()
 print(file)
 
+# Read wav file
 raw, sr = lb.load(file)
 filename = file.split('/')[-1].split('.')[0]
 # Length of audio clip in secs
@@ -35,6 +32,7 @@ key = tools.get_key()
 
 #%% SPLIT HARMONIC AND PERCUSSIVE COMPONENTS, PLOT TIME SERIES, GET TEMPO
 
+# Plot split time series
 fig, ax = plt.subplots(nrows=1, sharex=True)
 y_harm, y_perc = lb.effects.hpss(raw)
 lb.display.waveshow(y_harm, sr=sr, alpha=0.5, ax=ax, label='Harmonic')
@@ -44,13 +42,16 @@ ax.legend(loc='best')
 
 # Tempo estimation
 tempo = lb.beat.tempo(y=raw, sr=sr)
-tempo_rounded = np.around(tempo, 0)
+# FFT sample rate (Hz) (= 4x beat frequency)
+fft_sr = int(np.around(4*tempo/60, 0))
+fft_win = 4096
 
 # Use harmonic component from here on
 raw = y_harm
 
 #%% LOG-FREQ SPECTROGRAM
 
+# Plot spectrogram
 fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False)
 spec_db = lb.amplitude_to_db(np.abs(lb.stft(raw, hop_length=sr//fft_sr, n_fft=fft_win)**2), ref=np.max)
 img = lb.display.specshow(spec_db, y_axis='fft_note', sr=sr, hop_length=sr//fft_sr, x_axis='time', ax=ax, n_fft=fft_win)
@@ -62,8 +63,7 @@ yl = ax.get_ylim()
 
 #%% LOAD CHROMA DECOMP AND PLOT
 
-# #%% COMPUTE CHROMA STFT AND SAVE TO CSV
-
+# Chromagram
 S = np.abs(lb.stft(y=raw, n_fft=2048))**2
 chroma = lb.feature.chroma_stft(S=S, sr=sr, hop_length=sr//fft_sr, n_chroma=12)
 chroma = np.delete(chroma, 0, axis=1)
@@ -92,15 +92,13 @@ for sample in subsamples:
     
 #%% PLOT ANY SPECTRUM
 
+# Choose spectrum by time index
 s = input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): ')
 if type(s) is int:
     spectime = np.around(clip_length*s/(len(subsamples)-1),2)
     sp = spec_db[:,s]
     idxs = sps[s]['indices']
-    
-    # melfreqs = lb.mel_frequencies(n_mels=len(sp), fmin=lb.note_to_hz('A0'), fmax=lb.note_to_hz('C8'))
-    fftfreqs = lb.fft_frequencies(sr=sr, n_fft=fft_win)
-    
+    fftfreqs = lb.fft_frequencies(sr=sr, n_fft=fft_win) 
     specfig = plt.figure(figsize=(12,8))
     plt.plot(fftfreqs, sp, label='Spectrum')
     plt.xscale('log')
@@ -112,7 +110,7 @@ if type(s) is int:
 elif type(s) is None:
     pass
 
-#%% IDENTIFY NOTES THEN USE PYCHORD TO GET CHORDS FROM NOTES
+#%% FIRST PASS TO IDENTIFY NOTES THEN USE PYCHORD TO GET CHORDS FROM NOTES
 from tools import *
 
 sps = tools.get_notes(sps)
@@ -124,7 +122,7 @@ cd = {key: entries for key, entries in sps.items() if len(sps[key]['notes']) >= 
 for key in cd:
     cd[key]['chord'] = pc.find_chords_from_notes(cd[key]['notes'], rap, key, slash='n')
 
-#%%
+#%% SECOND PASS
 
 # Now deal with awkward slash chords
 empties = [key for key in cd.keys() if not cd[key]['chord']]
