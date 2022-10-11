@@ -25,6 +25,7 @@ import pandas as pd
 import librosa.display as lbd
 from IPython.display import Audio
 import pychord as pc
+import re
 
 # Font and style
 plt.rcParams.update({
@@ -51,30 +52,61 @@ frup = 5000
 class tools:
     
     # Read chord from chord_dict by sample no.
-    def crd(cd, sample):
+    def crd(cd: dict, sample: int) -> print:
         if not sample in cd.keys():
             print(sample,': N/C')
         else:
             print(sample,': ',cd[sample]['chord'])
+            
+            
+    # Get notes from freqs through librosa and add to dataframe
+    def get_notes(df: pd.DataFrame()) -> pd.DataFrame:
+        notes_col = []
+        for i in df.index:
+            notes = lb.hz_to_note(df['Freqs'][i])
+            # Remove numbers from note names and replace sharp character with hash
+            notes = [re.sub('[0-9]','',j) for j in notes]
+            notes = [re.sub('♯','#',j) for j in notes]
+            # Remove duplicate notes
+            notes = list(dict.fromkeys(notes))
+            notes_col.append(notes)
+        df['Notes'] = notes_col
+        return df
+    
+    
+    # Get chords from notes through pychord and add to dataframe
+    def get_chords(df: pd.DataFrame(), force_slash: bool) -> pd.DataFrame:
+        chords_col = []
+        for i in df.index:
+            notes = df['Notes'][i]
+            if force_slash == False:
+                chord = pc.find_chords_from_notes(notes, slash='n')
+            else:
+                chord = pc.find_chords_from_notes(notes[1:], slash=notes[0])
+            chords_col.append(chord)
+        df['Chord'] = chords_col
+        return df
 
-    # Get notes from freqs through librosa and add to freqdict
-    def get_notes(freqdict):
-        for key in freqdict:
-            notes = []
-            for freq in freqdict[key]['freqs']:
-                note = lb.hz_to_note(freq)
-                # Remove numbers from note names and replace sharp character with hash
-                note = ''.join([i for i in note if not i.isdigit()]).replace('♯','#')
-                # Ensure no duplicates
-                if not note in notes:
-                    notes.append(note)
-                else:
-                    continue
-            freqdict[key]['notes'] = notes
-        return freqdict
+
+    # # Get notes from freqs through librosa and add to freqdict
+    # def get_notes(freqdict):
+    #     for key in freqdict:
+    #         notes = []
+    #         for freq in freqdict[key]['freqs']:
+    #             note = lb.hz_to_note(freq)
+    #             # Remove numbers from note names and replace sharp character with hash
+    #             note = ''.join([i for i in note if not i.isdigit()]).replace('♯','#')
+    #             # Ensure no duplicates
+    #             if not note in notes:
+    #                 notes.append(note)
+    #             else:
+    #                 continue
+    #         freqdict[key]['notes'] = notes
+    #     return freqdict
+    
     
     # Get manual key input
-    def get_key():        
+    def get_key() -> str:        
         key = str(input('Enter key: ').upper())
         # if type(key) is None:
         #     print('none')
@@ -85,41 +117,3 @@ class tools:
         else:
             key = key+':maj'
         return key
-    
-    '''
-    # Extract prominent datapoints from dicts (OUTDATED)
-    def dic_to_coords(dic):
-        filtvals = []
-        for key in dic:
-            j=0
-            for j in range(len(dic[key])):
-                coord = np.array([key,dic[key][j]])
-                filtvals.append(coord)
-            j+=1
-        return np.array(filtvals)
-    
-    
-    # Get notes from freqs through the note library and add to freqdict (OUTDATED)
-    def get_notes(freqdict, notelib):
-        for key in freqdict:
-            notes = []
-            for freq in freqdict[key]['freqs']:
-                r = notelib.index[0]
-                match = False
-                while not match:
-                    if not notelib['fmin'][r] < freq < notelib['fmax'][r]:
-                        r += 1
-                    else:
-                        note = notelib['Note'][r]
-                        # note = lb.hz_to_note(freq)
-                        # Remove numbers from note names and split at /
-                        note = ''.join([i for i in note if not i.isdigit()]).split('/', 1)[0]
-                        match = True
-                # Ensure no duplicates
-                if not note in notes:
-                    notes.append(note)
-                else:
-                    continue
-            freqdict[key]['notes'] = notes
-        return freqdict
-    '''

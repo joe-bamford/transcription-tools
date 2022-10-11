@@ -16,7 +16,6 @@ print("Please choose an audio file")
 Tk().withdraw() 
 # Prompt user to search for file
 file = askopenfilename()
-print(file)
 
 # Read wav file
 raw, sr = lb.load(file)
@@ -44,7 +43,7 @@ ax.legend(loc='best')
 tempo = lb.beat.tempo(y=raw, sr=sr)
 # FFT sample rate (Hz) (= 4x beat frequency)
 fft_sr = int(np.around(4*tempo/60, 0))
-fft_win = 4096
+fft_win = 2048
 
 # Use harmonic component from here on
 raw = y_harm
@@ -74,8 +73,8 @@ img = lb.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax, hop_len
 
 frange = np.linspace(yl[0], yl[1], len(spec_db[:,0]))
 subsamples = np.arange(0, len(spec_db[0]), 1)
-sps = {}
-# pkp = {}
+freqdict = {'Timestamp':[],'Indices':[],'Freqs':[]}#,'Notes':[],'Chord':[]}
+
 i=0
 for sample in subsamples:
     sp = spec_db[:,sample]
@@ -86,55 +85,61 @@ for sample in subsamples:
     freqs = freqs[(freqs > frdown) & (freqs < frup)]
     # Check if list not empty, and if so dump into dict
     if peaks.tolist():
-        sps[i] = {'indices':peaks,'freqs':freqs,'notes':[],'chord':[]}
-        # pkp[i] = peakvals
+        freqdict['Timestamp'].append(i)
+        freqdict['Indices'].append(peaks)
+        freqdict['Freqs'].append(freqs)
     i+=1
-    
+
+# Convert to dataframe
+chordframe = pd.DataFrame.from_dict(freqdict)
+        
 #%% PLOT ANY SPECTRUM
 
-# Choose spectrum by time index
-s = input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): ')
-if type(s) is int:
-    spectime = np.around(clip_length*s/(len(subsamples)-1),2)
-    sp = spec_db[:,s]
-    idxs = sps[s]['indices']
-    fftfreqs = lb.fft_frequencies(sr=sr, n_fft=fft_win) 
-    specfig = plt.figure(figsize=(12,8))
-    plt.plot(fftfreqs, sp, label='Spectrum')
-    plt.xscale('log')
-    plt.xlabel('Freq / Hz')
-    plt.ylabel('dB')
-    plt.scatter(fftfreqs[idxs], sp[idxs],c='r',label='Strongest frequencies')
-    plt.title('Spectrum '+str(s)+' at t = '+str(spectime)+'s', fontsize=20)
-    plt.legend(loc='best')
-elif type(s) is None:
-    pass
+# # Choose spectrum by time index
+# s = input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): ')
+# if type(s) is int:
+#     spectime = np.around(clip_length*s/(len(subsamples)-1),2)
+#     sp = spec_db[:,s]
+#     idxs = freqdict[s]['indices']
+#     fftfreqs = lb.fft_frequencies(sr=sr, n_fft=fft_win) 
+#     specfig = plt.figure(figsize=(12,8))
+#     plt.plot(fftfreqs, sp, label='Spectrum')
+#     plt.xscale('log')
+#     plt.xlabel('Freq / Hz')
+#     plt.ylabel('dB')
+#     plt.scatter(fftfreqs[idxs], sp[idxs],c='r',label='Strongest frequencies')
+#     plt.title('Spectrum '+str(s)+' at t = '+str(spectime)+'s', fontsize=20)
+#     plt.legend(loc='best')
+# elif type(s) is None:
+#     pass
 
-#%% FIRST PASS TO IDENTIFY NOTES THEN USE PYCHORD TO GET CHORDS FROM NOTES
+#%% IDENTIFY NOTES THEN USE PYCHORD TO GET CHORDS FROM NOTES
+
 from tools import *
 
-sps = tools.get_notes(sps)
+# First, get notes
+chordframe = tools.get_notes(chordframe)
+# Remove rows with fewer than 3 distinct notes
+chordframe = chordframe[chordframe['Notes'].map(len) >= 3]
+# First pass at chord finding
+chordframe = tools.get_chords(chordframe, force_slash=False)
+# Filter out failed rows
+empties = chordframe[chordframe['Chord'].map(lambda a: len(a)) == 0]
+# Second pass to deal with awkward slashes
+empties = tools.get_chords(empties, force_slash=True)
 
-rap = {}
-# New dict containing only entries with 3 or more notes
-cd = {key: entries for key, entries in sps.items() if len(sps[key]['notes']) >= 3}
-# Find simpler chords on first pass and write to dict
-for key in cd:
-    cd[key]['chord'] = pc.find_chords_from_notes(cd[key]['notes'], rap, key, slash='n')
-
-#%% SECOND PASS
-
-# Now deal with awkward slash chords
-empties = [key for key in cd.keys() if not cd[key]['chord']]
-for key in empties:
-    notes = np.array(cd[key]['notes'])
-    top_notes = notes[1:].tolist()
-    cd[key]['chord'] = pc.find_chords_from_notes(top_notes, rap, key, slash=notes[0])
+# Add forced slash chords to chordframe
+forced_slashes = empties[empties['Chord'].map(lambda a: len(a)) > 0]
+for i in forced_slashes.index:
+    chordframe['Chord'][i] = forced_slashes['Chord'][i]
+    
+# Delete all rows still chordless
+chordframe = chordframe[chordframe['Chord'].map(lambda a: len(a)) > 0]
 
 #%% TEST CELL
 
-# Unidentified note lists (probably not chords)
-duffs = {key: entries for key, entries in cd.items() if not cd[key]['chord']}
+# # Unidentified note lists (probably not chords)
+# duffs = {key: entries for key, entries in cd.items() if not cd[key]['chord']}
 
 
 
