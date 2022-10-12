@@ -40,6 +40,8 @@ plt.rcParams['mathtext.it'] = 'Computer Modern Roman:italic'
 plt.rcParams['mathtext.bf'] = 'Computer Modern Roman:bold'
 plt.rcParams["axes.grid"] = True
 
+pd.set_option('mode.chained_assignment', None)
+
 #%% VARS
 
 fft_sr = 20
@@ -78,7 +80,7 @@ class tools:
     def get_chords(df: pd.DataFrame(), force_slash: bool) -> pd.DataFrame:
         chords_col = []
         for i in df.index:
-            notes = df['Notes'][i]
+            notes = df.at[i,'Notes']
             if force_slash == False:
                 chord = pc.find_chords_from_notes(notes, slash='n')
             else:
