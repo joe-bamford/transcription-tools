@@ -4,7 +4,7 @@ Created on Thu Oct 13 11:24:02 2022
 
 @author: bamjo
 
-STOLEN FROM https://www.youtube.com/watch?v=AShHJdSIxkY
+THIS IS A MODIFIED VERSION OF: https://www.youtube.com/watch?v=AShHJdSIxkY
 """
 
 from tools import *
