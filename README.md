@@ -8,12 +8,13 @@
 - librosa
 - pandas
 - scipy
-- yellowbrick
 - time
 - re
 - pyaudio
 - struct
 - keyboard
+- yellowbrick (only for plot aesthetics)
+
 
 # _ct.py_
 
