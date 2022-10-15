@@ -16,3 +16,9 @@ Loads a .wav and splits the waveform into harmonic and percussive components, co
 
 ## Desired functionality
 To map each set of notes to a chord.
+
+## Current functionality of _ct_stream.py_
+Plots a live waveform and spectrum from microphone input stream, identifies notes and chords from the spectrum.
+
+## Desired functionality
+Greater stability in chord detection.
