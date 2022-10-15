@@ -8,9 +8,6 @@
 - librosa
 - pandas
 
-## Aim
-To identify chords from songs recorded as .wav files.
-
 # _ct.py_
 
 ## Current functionality
