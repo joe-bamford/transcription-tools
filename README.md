@@ -7,6 +7,13 @@
 - pychord
 - librosa
 - pandas
+- scipy
+- yellowbrick
+- time
+- re
+- pyaudio
+- struct
+- keyboard
 
 # _ct.py_
 
