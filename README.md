@@ -19,10 +19,10 @@
 # _ct.py_
 
 ## Current functionality
-Loads a .wav and splits the waveform into harmonic and percussive components, computes a fast Fourier transform at many time samples to generate and plot a log-scaled spectrogram, picks out the strongest frequencies in each spectrum and maps these to notes. Notes are then mapped to chords but not all are yet recognised.
+Loads a .wav and splits the waveform into harmonic and percussive components, computes a fast Fourier transform at many time samples to generate and plot a log-scaled spectrogram, picks out the strongest frequencies in each spectrum and maps these to notes. Notes are then mapped to chords.
 
 ## Desired functionality
-To map each set of notes to a chord.
+Greater reliability with chord identification.
 
 # _ct_stream.py_
 
