@@ -53,6 +53,7 @@ start = time.time()
 frames = 0
 
 while True:
+    
     # Time series
     data = stream.read(CHUNK)
     data_int = np.frombuffer(data, dtype=np.int16)
@@ -83,15 +84,17 @@ while True:
         chord = pc.find_chords_from_notes(notes, slash='n')
         text.remove()
         text = ax[2].text(x=0.5, y=0, s=re.sub('[<>]','',str(chord)), verticalalignment='center', horizontalalignment='center', fontsize=30)
-    else:
+        print(time.time() - start, ": ", chord)
+    elif len(notes) in [1,2]:
         text.remove()
         text = ax[2].text(x=0.5, y=0, s=str(', '.join(notes)), verticalalignment='center', horizontalalignment='center', fontsize=30)
-        
+        print(np.round(time.time() - start,1), ": ", notes)
+
     # Draw all and update frame
     fig.canvas.draw()
     fig.canvas.flush_events()
     frames += 1
-    q
+    
     if kb.is_pressed('q'):
         print('\nExiting')
         plt.close('all')
