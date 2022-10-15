@@ -56,7 +56,6 @@ spec_db = lb.amplitude_to_db(np.abs(lb.stft(raw, hop_length=sr//fft_sr, n_fft=ff
 img = lb.display.specshow(spec_db, y_axis='fft_note', sr=sr, hop_length=sr//fft_sr, x_axis='time', ax=ax, n_fft=fft_win)
 ax.set(title='Log-frequency power spectrogram')
 ax.label_outer()
-# ax.grid(visible=True, which='major', axis='x', alpha=1, color='white')
 fig.colorbar(img, ax=ax, format="%+2.f dB")
 yl = ax.get_ylim()
 
@@ -78,7 +77,7 @@ freqdict = {'Timestamp':[],'Indices':[],'Freqs':[]}
 i=0
 for sample in subsamples:
     sp = spec_db[:,sample]
-    peaks = sg.find_peaks(sp, prominence=30)[0]
+    peaks = sg.find_peaks(sp, prominence=20)[0]
     freqs = frange[peaks]
     # peakvals = sp[peaks]
     # Remove values outside frequency range of the piano
@@ -99,7 +98,7 @@ chordframe = pd.DataFrame.from_dict(freqdict)
 s = -1
 while not s in chordframe['Timestamp'].tolist():
     try:
-        s = input('Spectrum to plot (0-'+str(len(subsamples)-1)+'): ')
+        s = input('Spectrum to plot (0-'+str(len(subsamples)-1)+'), or hit enter to skip: ')
         if len(s) == 0:
             break
         else:
@@ -127,20 +126,14 @@ else:
 
 #%% IDENTIFY NOTES THEN USE PYCHORD TO GET CHORDS FROM NOTES
 
-from tools import *
-
 # First, get notes
 chordframe = tools.get_notes(chordframe)
-
 # Remove rows with fewer than 3 distinct notes
 chordframe = chordframe[chordframe['Notes'].map(len) >= 3]
-
 # First pass at chord finding
 chordframe = tools.get_chords(chordframe, force_slash=False)
-
 # Filter out failed rows
 empties = chordframe[chordframe['Chord'].map(len) == 0]
-
 # Second pass to deal with awkward slashes
 empties = tools.get_chords(empties, force_slash=True)
 

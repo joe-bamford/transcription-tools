@@ -16,7 +16,7 @@ import time
 import glob
 import scipy
 from scipy import signal as sg
-from scipy import optimize as opt
+from scipy.fftpack import fft
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import matplotlib.pyplot as plt
@@ -26,6 +26,11 @@ import librosa.display as lbd
 from IPython.display import Audio
 import pychord as pc
 import re
+import pyaudio as pa
+import struct as st
+import keyboard as kb
+import time
+from tkinter import TclError
 
 # Font and style
 plt.rcParams.update({
@@ -51,15 +56,7 @@ frup = 5000
 
 #%% FUNCS
 
-class tools:
-    
-    # Read chord from chord_dict by sample no.
-    def crd(cd: dict, sample: int) -> print:
-        if not sample in cd.keys():
-            print(sample,': N/C')
-        else:
-            print(sample,': ',cd[sample]['chord'])
-            
+class tools:          
             
     # Get notes from freqs through librosa and add to dataframe
     def get_notes(df: pd.DataFrame()) -> pd.DataFrame:
@@ -88,23 +85,6 @@ class tools:
             chords_col.append(chord)
         df['Chord'] = chords_col
         return df
-
-
-    # # Get notes from freqs through librosa and add to freqdict
-    # def get_notes(freqdict):
-    #     for key in freqdict:
-    #         notes = []
-    #         for freq in freqdict[key]['freqs']:
-    #             note = lb.hz_to_note(freq)
-    #             # Remove numbers from note names and replace sharp character with hash
-    #             note = ''.join([i for i in note if not i.isdigit()]).replace('♯','#')
-    #             # Ensure no duplicates
-    #             if not note in notes:
-    #                 notes.append(note)
-    #             else:
-    #                 continue
-    #         freqdict[key]['notes'] = notes
-    #     return freqdict
     
     
     # Get manual key input
