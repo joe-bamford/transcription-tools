@@ -67,7 +67,7 @@ while True:
     sp.set_ydata(data_fft)
     
     # Get strong freqs
-    peaks = sg.find_peaks(data_fft, prominence=0.3)[0].tolist()
+    peaks = sg.find_peaks(data_fft, prominence=0.1)[0].tolist()
     # Keep only the ones in audible range
     peaks = [i for i in peaks if i < 1024]
     notes = []
@@ -76,19 +76,17 @@ while True:
         notes = lb.hz_to_note(x_fft[peaks])
     
     # Convert to chord if enough notes
-    if len(notes) >= 3:
+    if len(notes) >= 4:
         notes = [re.sub('[0-9]','',j) for j in notes]
         notes = [re.sub('♯','#',j) for j in notes]
         # Remove duplicate notes
         notes = list(dict.fromkeys(notes))
-        chord = pc.find_chords_from_notes(notes, slash='n')
+        chord = pc.find_chords_from_notes(notes[1:], slash='n')
         text.remove()
         text = ax[2].text(x=0.5, y=0, s=re.sub('[<>]','',str(chord)), verticalalignment='center', horizontalalignment='center', fontsize=30)
-        print(time.time() - start, ": ", chord)
-    elif len(notes) in [1,2]:
-        text.remove()
-        text = ax[2].text(x=0.5, y=0, s=str(', '.join(notes)), verticalalignment='center', horizontalalignment='center', fontsize=30)
-        print(np.round(time.time() - start,1), ": ", notes)
+    # elif len(notes) in [1,2]:
+        # text.remove()
+        # text = ax[2].text(x=0.5, y=0, s=str(', '.join(notes)), verticalalignment='center', horizontalalignment='center', fontsize=30)
 
     # Draw all and update frame
     fig.canvas.draw()
@@ -103,24 +101,4 @@ while True:
         break
 
 #%%
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
