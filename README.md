@@ -1,4 +1,4 @@
-# chord-transcriber (WIP)
+# chord-detector (WIP)
 
 ## List of module dependencies
 - numpy
