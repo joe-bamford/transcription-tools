@@ -12,15 +12,15 @@ plt.close('all')
 
 #%% SETUP
 
-CHUNK = 2048
-FORMAT = pa.paInt16
-CHANNELS = 1
-RATE = 44100
-
-#%% BUILD STREAM
-
-p = pa.PyAudio()
-stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True, frames_per_buffer=CHUNK)
+class audiostream():
+    def __init__(self, CHUNK, FORMAT):
+        self.CHUNK = 2048
+        self.FORMAT = pa.paInt16
+        # self.CHANNELS = 1
+        # self.RATE = 44100
+        
+        # p = pa.PyAudio()
+        # stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True, frames_per_buffer=CHUNK)
 
 #%% PLOT IN (ALMOST) REAL TIME
 
@@ -62,9 +62,16 @@ while True:
     # Spectrum
     data_fft = fft(data_int)
     data_fft = np.abs(data_fft[0:CHUNK] / (128*CHUNK))**4
+    # Librosa stft? - too slow
+    # data_flt = np.array(data_int, dtype=float)
+    # lb_fft = np.abs(lb.stft(data_flt, hop_length=2*CHUNK, n_fft=2*CHUNK)[:-1,0] / (128*CHUNK))**4    
+    # S = (lb.feature.melspectrogram(y=data_fqlt, sr=RATE, n_mels=CHUNK, hop_length=2*CHUNK, power=1)[:,0] / (128*CHUNK))**4   
+    
     # Normalise spectrum
     data_fft /= np.max(data_fft)
     sp.set_ydata(data_fft)
+    # lb_fft /= np.max(lb_fft)
+    # sp.set_ydata(lb_fft)
     
     # Get strong freqs
     peaks = sg.find_peaks(data_fft, prominence=0.1)[0].tolist()
@@ -81,12 +88,12 @@ while True:
         notes = [re.sub('♯','#',j) for j in notes]
         # Remove duplicate notes
         notes = list(dict.fromkeys(notes))
-        chord = pc.find_chords_from_notes(notes[1:], slash='n')
+        chord = pc.find_chords_from_notes(notes, slash='n')
         text.remove()
         text = ax[2].text(x=0.5, y=0, s=re.sub('[<>]','',str(chord)), verticalalignment='center', horizontalalignment='center', fontsize=30)
     # elif len(notes) in [1,2]:
-        # text.remove()
-        # text = ax[2].text(x=0.5, y=0, s=str(', '.join(notes)), verticalalignment='center', horizontalalignment='center', fontsize=30)
+    #     text.remove()
+    #     text = ax[2].text(x=0.5, y=0, s=str(', '.join(notes)), verticalalignment='center', horizontalalignment='center', fontsize=30)
 
     # Draw all and update frame
     fig.canvas.draw()

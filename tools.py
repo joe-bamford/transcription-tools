@@ -8,12 +8,9 @@ Created on Sun Aug 28 18:54:01 2022
 #%% IMPORTS AND SETUP
 
 import numpy as np
-import seaborn as sb
-import yellowbrick as sb
+import yellowbrick
 import librosa as lb
-import math
 import time
-import glob
 import scipy
 from scipy import signal as sg
 from scipy.fftpack import fft
@@ -23,14 +20,11 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import librosa.display as lbd
-from IPython.display import Audio
 import pychord as pc
 import re
 import pyaudio as pa
 import struct as st
 import keyboard as kb
-import time
-from tkinter import TclError
 
 # Font and style
 plt.rcParams.update({
@@ -56,7 +50,15 @@ frup = 5000
 
 #%% FUNCS
 
-class tools:          
+class tools:
+
+    # Convert time from mins:secs to secs
+    def convert_time(times: list) -> list:
+        times_secs = []
+        for time in times:
+            mins, secs = re.split('[:,.]',time)
+            times_secs.append(int(secs) + 60*int(mins))
+        return np.array(times_secs)
             
     # Get notes from freqs through librosa and add to dataframe
     def get_notes(df: pd.DataFrame()) -> pd.DataFrame:

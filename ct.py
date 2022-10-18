@@ -57,16 +57,21 @@ img = lb.display.specshow(spec_db, y_axis='fft_note', sr=sr, hop_length=sr//fft_
 ax.set(title='Log-frequency power spectrogram')
 ax.label_outer()
 fig.colorbar(img, ax=ax, format="%+2.f dB")
-yl = ax.get_ylim()
+
+# Select time range to inspect
+time_start = str(input('Start of time range (mins:secs): '))
+time_end = str(input('End of time range (mins:secs): '))
+times_secs = tools.convert_time([time_start, time_end])
+ax.set_xlim(times_secs)
 
 #%% LOAD CHROMA DECOMP AND PLOT
 
-# Chromagram
-S = np.abs(lb.stft(y=raw, n_fft=2048))**2
-chroma = lb.feature.chroma_stft(S=S, sr=sr, hop_length=sr//fft_sr, n_chroma=12)
-chroma = np.delete(chroma, 0, axis=1)
-fig, ax = plt.subplots(nrows=1, sharex=True)
-img = lb.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax, hop_length=sr//fft_sr, key=key, fmin=frdown, fmax=frup)
+# # Chromagram
+# S = np.abs(lb.stft(y=raw, n_fft=2048))**2
+# chroma = lb.feature.chroma_stft(S=S, sr=sr, hop_length=sr//fft_sr, n_chroma=12)
+# chroma = np.delete(chroma, 0, axis=1)
+# fig, ax = plt.subplots(nrows=1, sharex=True)
+# img = lb.display.specshow(chroma, y_axis='chroma', x_axis='time', ax=ax, hop_length=sr//fft_sr, key=key, fmin=frdown, fmax=frup)
 
 #%% FIND PEAK FREQS
 
@@ -77,7 +82,7 @@ freqdict = {'Timestamp':[],'Indices':[],'Freqs':[]}
 i=0
 for sample in subsamples:
     sp = spec_db[:,sample]
-    peaks = sg.find_peaks(sp, prominence=20)[0]
+    peaks = sg.find_peaks(sp, prominence=30)[0]
     freqs = frange[peaks]
     # peakvals = sp[peaks]
     # Remove values outside frequency range of the piano
