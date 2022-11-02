@@ -12,15 +12,15 @@ plt.close('all')
 
 #%% SETUP
 
-class audiostream():
-    def __init__(self, CHUNK, FORMAT):
-        self.CHUNK = 2048
-        self.FORMAT = pa.paInt16
-        # self.CHANNELS = 1
-        # self.RATE = 44100
-        
-        # p = pa.PyAudio()
-        # stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True, frames_per_buffer=CHUNK)
+CHUNK = 2048
+FORMAT = pa.paInt16
+CHANNELS = 1
+RATE = 44100
+
+#%% BUILD STREAM
+
+p = pa.PyAudio()
+stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, output=True, frames_per_buffer=CHUNK)
 
 #%% PLOT IN (ALMOST) REAL TIME
 
@@ -90,7 +90,7 @@ while True:
         notes = list(dict.fromkeys(notes))
         chord = pc.find_chords_from_notes(notes, slash='n')
         text.remove()
-        text = ax[2].text(x=0.5, y=0, s=re.sub('[<>]','',str(chord)), verticalalignment='center', horizontalalignment='center', fontsize=30)
+        text = ax[2].text(x=0.5, y=0, s=re.sub('[<>]','',str(chord).split(',')[0]), verticalalignment='center', horizontalalignment='center', fontsize=30)
     # elif len(notes) in [1,2]:
     #     text.remove()
     #     text = ax[2].text(x=0.5, y=0, s=str(', '.join(notes)), verticalalignment='center', horizontalalignment='center', fontsize=30)
@@ -100,7 +100,7 @@ while True:
     fig.canvas.flush_events()
     frames += 1
     
-    if kb.is_pressed('q'):
+    if kb.is_pressed('esc'):
         print('\nExiting')
         plt.close('all')
         fps = frames / (time.time() - start)

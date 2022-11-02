@@ -11,6 +11,7 @@ import numpy as np
 import yellowbrick
 import librosa as lb
 import time
+import os
 import scipy
 from scipy import signal as sg
 from scipy.fftpack import fft
@@ -22,6 +23,8 @@ import pandas as pd
 import librosa.display as lbd
 import pychord as pc
 import re
+import pygame as pg
+import pygame.midi
 import pyaudio as pa
 import struct as st
 import keyboard as kb
@@ -60,6 +63,7 @@ class tools:
             times_secs.append(int(secs) + 60*int(mins))
         return np.array(times_secs)
             
+    
     # Get notes from freqs through librosa and add to dataframe
     def get_notes(df: pd.DataFrame()) -> pd.DataFrame:
         notes_col = []
