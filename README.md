@@ -13,7 +13,7 @@
 - pyaudio
 - struct
 - keyboard
-- yellowbrick (only for plot aesthetics)
+- yellowbrick (optional, only for plot aesthetics)
 
 
 # _ct.py_
