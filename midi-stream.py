@@ -17,12 +17,13 @@ plt.close('all')
 def number_to_note(number):
     
     # notes = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B']
+    # Would prefer to use flats personally but pychord is built to use sharps
     notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     return notes[number % 12]
 
-def readInput(input_device, fig, ax, text):
+def readInput(input_device, fig, ax, text, dev_id):
     
-    pressed = []
+    pressed = {'notes':[], 'nums':[]}
     while True:
         
         # Read changes from input device
@@ -34,26 +35,39 @@ def readInput(input_device, fig, ax, text):
             note = number_to_note(note_num)
             
             # Keep track of notes pressed down
+            # Press event (state 144)
             if data[0] == 144:
                 state = 'P'
-                if not note in pressed:
-                    pressed.append(note)       
+                if not note_num in pressed['nums']:
+                    pressed['notes'].append(note)
+                    pressed['nums'].append(note_num)
+            # Release event (state 128)
             if data[0] == 128:
                 state = 'R'
-                if note in pressed:
-                    pressed.remove(note)
+                if note_num in pressed['nums']:
+                    pressed['notes'].remove(note)
+                    pressed['nums'].remove(note_num)
             
+            # Rotate pressed notes until lowest is first (avoids unnecessary slashes)
+            if pressed['nums']:
+                while not np.min(pressed['nums']) == pressed['nums'][0]:
+                    pressed['nums'] = pressed['nums'][1:] + pressed['nums'][:1]
+                    pressed['notes'] = pressed['notes'][1:] + pressed['notes'][:1]
+         
             # print(pressed)
             # Display either single note or chord
-            if len(pressed) == 1:
+            if len(pressed['notes']) == 1:
                 text.remove()
                 text = ax.text(x=0.5, y=0.5, s=note, verticalalignment='center', horizontalalignment='center', fontsize=120)
-            if len(pressed) >= 3:
-                chord = pc.find_chords_from_notes(pressed, slash='n')
-                if type(chord) is None:
-                    chord = pc.find_chords_from_notes(pressed, slash=pressed[0])
+            if len(pressed['notes']) >= 3:
+                chord = pc.find_chords_from_notes(pressed['notes'], slash='n')
+                if not chord:
+                    chord = pc.find_chords_from_notes(pressed['notes'], slash=pressed['notes'][0])
+                if not chord:
+                    chord = '404: chord not found'
                 text.remove()
-                text = ax.text(x=0.5, y=0.5, s=re.sub(r'[<>]|[\[\]]','',str(chord).split(',')[0]), verticalalignment='center', horizontalalignment='center', fontsize=120)
+                text = ax.text(x=0.5, y=0.5, s=re.sub(r'[<>]|[\[\]]','',str(chord).split(',')[0]), 
+                               verticalalignment='center', horizontalalignment='center', fontsize=120)
         
         # Draw and refresh
         fig.canvas.draw()
@@ -71,12 +85,13 @@ def readInput(input_device, fig, ax, text):
 
 if __name__ == '__main__':
     
+    # Initialise display
     fig, ax = plt.subplots(1,1, figsize=(18,10))
-    # Chord display
     ax.grid(False)
     ax.axis('off')
     text = ax.text(x=0.5, y=0.5, s='play me summin real nice', verticalalignment='center', horizontalalignment='center', fontsize=80)
     
+    # Initialise pygame and call loop
     pg.midi.init()
     dev_id = 1
-    readInput(pg.midi.Input(dev_id), fig, ax, text)
+    readInput(pg.midi.Input(dev_id), fig, ax, text, dev_id)
