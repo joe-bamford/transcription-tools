@@ -3,13 +3,10 @@
 ## List of module dependencies
 - numpy
 - matplotlib
-- tkinter
 - pychord
 - librosa
 - pandas
 - scipy
-- time
-- re
 - pyaudio
 - struct
 - keyboard
@@ -31,3 +28,11 @@ Plots a live waveform and spectrum from microphone input stream, identifies note
 
 ## Desired functionality
 Greater stability in chord detection.
+
+# _midi-stream.py_
+
+## Current functionality
+Takes live midi input and displays notes/chords through a matplotlib GUI.
+
+## Desired functionality
+Recognition of difficult chords.
