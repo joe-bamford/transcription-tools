@@ -36,4 +36,4 @@ Greater stability in chord detection.
 Takes live midi input and displays notes/chords through a matplotlib GUI.
 
 ## Desired functionality
-Recognition of difficult chords.
+Quicker response time.
