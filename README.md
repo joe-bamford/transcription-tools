@@ -4,6 +4,7 @@
 - numpy
 - matplotlib
 - pychord
+- pygame
 - librosa
 - pandas
 - scipy
