@@ -55,14 +55,19 @@ frup = 5000
 
 class tools:
 
-    # Convert time from mins:secs to secs
-    def convert_time(times: list) -> list:
+    # Convert time from [mins:secs] to secs
+    def convert_time(times: list, clip_length: float) -> list:
+        if times[0] == '':
+            times[0] = '0:0'
         times_secs = []
         for time in times:
-            mins, secs = re.split('[:,.]',time)
-            times_secs.append(int(secs) + 60*int(mins))
+            if time == '':
+                times_secs.append(clip_length)
+            else:
+                mins, secs = re.split('[:,.]',time)
+                times_secs.append(int(secs) + 60*int(mins))
         return np.array(times_secs)
-            
+
     
     # Get notes from freqs through librosa and add to dataframe
     def get_notes(df: pd.DataFrame()) -> pd.DataFrame:
@@ -72,6 +77,7 @@ class tools:
             # Remove numbers from note names and replace sharp character with hash
             notes = [re.sub('[0-9]','',j) for j in notes]
             notes = [re.sub('♯','#',j) for j in notes]
+            notes = [re.sub('♭','b',j) for j in notes]            
             # Remove duplicate notes
             notes = list(dict.fromkeys(notes))
             notes_col.append(notes)

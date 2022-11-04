@@ -16,9 +16,9 @@ plt.close('all')
         
 def number_to_note(number):
     
-    # notes = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A♭', 'A', 'B♭', 'B']
+    notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
     # Would prefer to use flats personally but pychord is built to use sharps
-    notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+    # notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     return notes[number % 12]
 
 def readInput(input_device, fig, ax, text, dev_id):
@@ -54,20 +54,27 @@ def readInput(input_device, fig, ax, text, dev_id):
                     pressed['nums'] = pressed['nums'][1:] + pressed['nums'][:1]
                     pressed['notes'] = pressed['notes'][1:] + pressed['notes'][:1]
          
-            # print(pressed)
+            print(pressed)
+            # Give pychord a copy of list of notes pressed, with duplicates removed
+            pressed_notes = list(dict.fromkeys(pressed['notes']))
             # Display either single note or chord
-            if len(pressed['notes']) == 1:
+            if len(pressed_notes) == 1:
                 text.remove()
                 text = ax.text(x=0.5, y=0.5, s=note, verticalalignment='center', horizontalalignment='center', fontsize=120)
-            if len(pressed['notes']) >= 3:
-                chord = pc.find_chords_from_notes(pressed['notes'], slash='n')
+            if len(pressed_notes) >= 3:
+                chord = pc.find_chords_from_notes(pressed_notes, slash='n')
                 if not chord:
-                    chord = pc.find_chords_from_notes(pressed['notes'], slash=pressed['notes'][0])
+                    chord = pc.find_chords_from_notes(pressed_notes, slash=pressed_notes[0])
                 if not chord:
                     chord = '404: chord not found'
                 text.remove()
                 text = ax.text(x=0.5, y=0.5, s=re.sub(r'[<>]|[\[\]]','',str(chord).split(',')[0]), 
-                               verticalalignment='center', horizontalalignment='center', fontsize=120)
+                               verticalalignment='center', horizontalalignment='center', fontsize=110)
+            # Or nothing
+            if not pressed_notes:
+                time.sleep(0.1)
+                text.remove()
+                text = ax.text(x=0.5, y=0.5, s='', verticalalignment='center', horizontalalignment='center', fontsize=110)
         
         # Draw and refresh
         fig.canvas.draw()

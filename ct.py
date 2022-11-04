@@ -58,10 +58,12 @@ ax.set(title='Log-frequency power spectrogram')
 ax.label_outer()
 fig.colorbar(img, ax=ax, format="%+2.f dB")
 
+#%%
+
 # Select time range to inspect
 time_start = str(input('Start of time range (mins:secs): '))
 time_end = str(input('End of time range (mins:secs): '))
-times_secs = tools.convert_time([time_start, time_end])
+times_secs = tools.convert_time([time_start, time_end], clip_length)
 ax.set_xlim(times_secs)
 
 #%% LOAD CHROMA DECOMP AND PLOT
@@ -75,6 +77,7 @@ ax.set_xlim(times_secs)
 
 #%% FIND PEAK FREQS
 
+yl = ax.get_ylim()
 frange = np.linspace(yl[0], yl[1], len(spec_db[:,0]))
 subsamples = np.arange(0, len(spec_db[0]), 1)
 freqdict = {'Timestamp':[],'Indices':[],'Freqs':[]}
