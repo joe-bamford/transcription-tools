@@ -17,7 +17,7 @@
 # _ct.py_
 
 ## Current functionality
-Loads a .wav and splits the waveform into harmonic and percussive components, generates and plots a log-scaled spectrogram, picks out the strongest frequencies in each spectrum and maps these to notes. Where possible, groups of notes are then mapped to chords.
+Loads a .wav and splits the waveform into harmonic and percussive components, generates and plots a log-scaled spectrogram, picks out the strongest frequencies in each spectrum and maps these to notes. Where possible, groups of notes are then mapped to chords. Example .wav in repo.
 
 ## Desired functionality
 Greater reliability with chord identification.
