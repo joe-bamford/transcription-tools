@@ -12,12 +12,21 @@ https://stackoverflow.com/questions/67642570/pygame-midi-how-to-detect-simultane
 from tools import *
 plt.close('all')
 
-#%%
+#%% DEVICE SETUP
+
+# def print_devices():
+#     for n in range(pygame.midi.get_count()):
+#         print (n,pygame.midi.get_device_info(n))
+
+# pygame.midi.init()
+# print_devices()
+
+#%% STREAM
         
 def number_to_note(number):
     
     notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-    # Would prefer to use flats personally but pychord is built to use sharps
+    # In case you prefer sharps (weirdo)
     # notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
     return notes[number % 12]
 
@@ -60,15 +69,15 @@ def readInput(input_device, fig, ax, text, dev_id):
             # Display either single note or chord
             if len(pressed_notes) == 1:
                 text.remove()
-                text = ax.text(x=0.5, y=0.5, s=note, verticalalignment='center', horizontalalignment='center', fontsize=120)
+                text = ax.text(x=0.5, y=0.5, s=note.replace('b', r'$\flat$'), verticalalignment='center', horizontalalignment='center', fontsize=120)
             if len(pressed_notes) >= 3:
-                chord = pc.find_chords_from_notes(pressed_notes, slash='n')
-                if not chord:
-                    chord = pc.find_chords_from_notes(pressed_notes, slash=pressed_notes[0])
-                if not chord:
+                chord = str(pc.find_chords_from_notes(pressed_notes, slash='n')).split(',')[0]
+                if chord == '[]':
+                    chord = str(pc.find_chords_from_notes(pressed_notes[1:], slash=pressed_notes[0])).split(',')[0]
+                if chord == '[]':
                     chord = '404: chord not found'
                 text.remove()
-                text = ax.text(x=0.5, y=0.5, s=re.sub(r'[<>]|[\[\]]','',str(chord).split(',')[0]), 
+                text = ax.text(x=0.5, y=0.5, s=re.sub(r'[<>]|[\[\]]','',chord.replace('b', r'$\flat$')), 
                                verticalalignment='center', horizontalalignment='center', fontsize=110)
             # Or nothing
             if not pressed_notes:

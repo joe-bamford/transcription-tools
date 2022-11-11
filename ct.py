@@ -57,9 +57,6 @@ img = lb.display.specshow(spec_db, y_axis='fft_note', sr=sr, hop_length=sr//fft_
 ax.set(title='Log-frequency power spectrogram')
 ax.label_outer()
 fig.colorbar(img, ax=ax, format="%+2.f dB")
-
-#%%
-
 # Select time range to inspect
 time_start = str(input('Start of time range (mins:secs): '))
 time_end = str(input('End of time range (mins:secs): '))
@@ -80,21 +77,23 @@ ax.set_xlim(times_secs)
 yl = ax.get_ylim()
 frange = np.linspace(yl[0], yl[1], len(spec_db[:,0]))
 subsamples = np.arange(0, len(spec_db[0]), 1)
-freqdict = {'Timestamp':[],'Indices':[],'Freqs':[]}
+freqdict = {'Time index':[],'Time':[],'Indices':[],'Freqs':[]}
 
 i=0
 for sample in subsamples:
     sp = spec_db[:,sample]
-    peaks = sg.find_peaks(sp, prominence=30)[0]
+    peaks = sg.find_peaks(sp, prominence=35)[0]
     freqs = frange[peaks]
+    spectime = np.around(clip_length*i/(len(subsamples)-1),3)
     # peakvals = sp[peaks]
     # Remove values outside frequency range of the piano
     freqs = freqs[(freqs > frdown) & (freqs < frup)]
     # Check if list not empty, and if so dump into dict
     if peaks.tolist():
-        freqdict['Timestamp'].append(i)
+        freqdict['Time index'].append(i)
         freqdict['Indices'].append(peaks)
         freqdict['Freqs'].append(freqs)
+        freqdict['Time'].append(spectime)
     i+=1
 
 # Convert to dataframe
@@ -104,7 +103,7 @@ chordframe = pd.DataFrame.from_dict(freqdict)
 
 # Choose spectrum by timestamp
 s = -1
-while not s in chordframe['Timestamp'].tolist():
+while not s in chordframe['Time index'].tolist():
     try:
         s = input('Spectrum to plot (0-'+str(len(subsamples)-1)+'), or hit enter to skip: ')
         if len(s) == 0:
@@ -118,7 +117,7 @@ while not s in chordframe['Timestamp'].tolist():
 if len(str(s)) > 0:
     spectime = np.around(clip_length*s/(len(subsamples)-1),2)
     sp = spec_db[:,s]
-    df_idx = chordframe[chordframe['Timestamp'] == s].index.item()
+    df_idx = chordframe[chordframe['Time index'] == s].index.item()
     idxs = chordframe.loc[df_idx,'Indices']
     fftfreqs = lb.fft_frequencies(sr=sr, n_fft=fft_win) 
     specfig = plt.figure(figsize=(12,8))
@@ -151,25 +150,6 @@ for i in forced_slashes.index:
     chordframe.loc[i, 'Chord'] = forced_slashes['Chord'][i]
 
 # Delete all rows still chordless
-chordframe = chordframe[chordframe['Chord'].map(len) > 0]
-
-#%% TEST CELL
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
+chordframe = chordframe[chordframe['Chord'].map(len) > 0]    
     
     
