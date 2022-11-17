@@ -1,5 +1,7 @@
 # chord-detector (WIP)
 
+## NOTE: These scripts will only work if you install my forked version of pychord
+
 ## List of module dependencies
 - numpy
 - matplotlib
@@ -12,7 +14,6 @@
 - struct
 - keyboard
 - yellowbrick (optional, only for plot aesthetics)
-
 
 # _ct.py_
 
