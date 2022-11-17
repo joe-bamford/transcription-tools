@@ -1,6 +1,6 @@
 # chord-detector (WIP)
 
-## NOTE: These scripts will only work if you install my forked version of pychord
+## NOTE: These scripts will only work if you install my forked version of pychord.
 
 ## List of module dependencies
 - numpy
