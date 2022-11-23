@@ -52,20 +52,18 @@ def format_chord(chord):
                 '11':r'$^{11}$',
                 '13':r'$^{13}$'}
     
-    if not chord == '404: chord \n not found':
-    
+    if not chord == '':
+        
         # Remove junk
         chord = re.sub(r'[<>]|[\[\]]','',chord)
         chord = chord.replace('Chord: ','')
-        
         for key in fmt_dict:
             # Ignore already replaced substrings
             if str(fmt_dict[key]) in chord:
                 continue
             # Replace ones not yet done
             if str(key) in chord:
-                chord = chord.replace(key, fmt_dict[key])
-    print(chord)
+                chord = chord.replace(key, fmt_dict[key])                
     return chord
 
 def read_input(input_device, fig, ax, text, dev_id):
@@ -98,23 +96,18 @@ def read_input(input_device, fig, ax, text, dev_id):
                     pressed['nums'] = pressed['nums'][1:] + pressed['nums'][:1]
                     pressed['notes'] = pressed['notes'][1:] + pressed['notes'][:1]
          
-            # print(pressed)
             # Give pychord a copy of list of notes pressed, with duplicates removed
             pressed_notes = list(dict.fromkeys(pressed['notes']))
             # Display either single note or chord
             if len(pressed_notes) == 1:
                 text.remove()
-                text = ax.text(x=0.5, y=0.5, s=note.replace('b', r'$\flat$'), verticalalignment='center', horizontalalignment='center', fontsize=130)
+                text = ax.text(x=0.5, y=0.5, s=note.replace('b', r'$^{\flat}$'), verticalalignment='center', horizontalalignment='center', fontsize=130)
             if len(pressed_notes) >= 3:
-                chord = str(pc.find_chords_from_notes(pressed_notes, slash='n')).split(',')[0]
-                if chord == '[]':
-                    chord = str(pc.find_chords_from_notes(pressed_notes[1:], slash=pressed_notes[0])).split(',')[0]
-                if chord == '[]':
-                    chord = '404: chord \n not found'
+                chord = tools.get_chord(pressed_notes)
                 # Refresh display and print formatted chord name
                 text.remove()
-                text = ax.text(x=0.5, y=0.5, s=format_chord(chord), 
-                               verticalalignment='center', horizontalalignment='center', fontsize=130)
+                text = ax.text(x=0.5, y=0.5, s=format_chord(chord), verticalalignment='center', horizontalalignment='center', fontsize=130)
+            
             # Or nothing, if no notes being played
             if not pressed_notes:
                 time.sleep(0.1)

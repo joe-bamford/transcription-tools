@@ -138,11 +138,11 @@ chordframe = tools.get_notes(chordframe)
 # Remove rows with fewer than 3 distinct notes
 chordframe = chordframe[chordframe['Notes'].map(len) >= 3]
 # First pass at chord finding
-chordframe = tools.get_chords(chordframe, force_slash=False)
+chordframe = tools.get_chords_df(chordframe, force_slash=False)
 # Filter out failed rows
 empties = chordframe[chordframe['Chord'].map(len) == 0]
 # Second pass to deal with awkward slashes
-empties = tools.get_chords(empties, force_slash=True)
+empties = tools.get_chords_df(empties, force_slash=True)
 
 # Add forced slash chords to chordframe
 forced_slashes = empties[empties['Chord'].map(len) > 0]

@@ -86,7 +86,7 @@ class tools:
     
     
     # Get chords from notes through pychord and add to dataframe
-    def get_chords(df: pd.DataFrame(), force_slash: bool) -> pd.DataFrame:
+    def get_chords_df(df: pd.DataFrame(), force_slash: bool) -> pd.DataFrame:
         chords_col = []
         for i in df.index:
             notes = df.at[i,'Notes']
@@ -98,6 +98,15 @@ class tools:
         df['Chord'] = chords_col
         return df
     
+    
+    # Get chords from notes and return as a simple list
+    def get_chord(notes):
+        chord = str(pc.find_chords_from_notes(notes)).split(',')[0]
+        if chord == '[]':
+            chord = str(pc.find_chords_from_notes(notes[1:], slash=notes[0])).split(',')[0]
+        if chord == '[]':
+            chord = ''
+        return chord
     
     # Get manual key input
     def get_key() -> str:        
