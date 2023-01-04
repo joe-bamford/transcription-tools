@@ -27,7 +27,7 @@ Greater reliability with chord identification.
 # _ct-stream.py_
 
 ## Current functionality
-Plots a live waveform and spectrum from microphone input stream, identifies notes and chords from the spectrum.
+Plots a live waveform and spectrum from microphone input stream, identifies notes from the spectrum.
 
 ## Desired functionality
 Greater stability in chord detection.
