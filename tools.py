@@ -11,12 +11,14 @@ import numpy as np
 import yellowbrick
 import librosa as lb
 import time
+import threading
 import os
 import scipy
 from scipy import signal as sg
 from scipy.fftpack import fft
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
@@ -53,7 +55,7 @@ frup = 5000
 
 #%% FUNCS
 
-class tools:
+class tools(threading.Thread):
 
     # Convert time from [mins:secs] to secs
     def convert_time(times: list, clip_length: float) -> list:
@@ -100,13 +102,13 @@ class tools:
     
     
     # Get chords from notes and return as a simple list
-    def get_chord(notes):
-        chord = str(pc.find_chords_from_notes(notes)).split(',')[0]
-        if chord == '[]':
-            chord = str(pc.find_chords_from_notes(notes[1:], slash=notes[0])).split(',')[0]
-        if chord == '[]':
-            chord = ''
-        return chord
+    def get_chords(notes):
+        main_chord = str(pc.find_chords_from_notes(notes)).split(',')[0]
+        slash_chord = str(pc.find_chords_from_notes(notes[1:], slash=notes[0])).split(',')[0]
+        chords = [main_chord, slash_chord]
+        # if chords == ['[]','[]']:
+        #     chords = []
+        return chords
     
     # Get manual key input
     def get_key() -> str:        
@@ -120,3 +122,47 @@ class tools:
         else:
             key = key+':maj'
         return key
+
+    # Convert numbers to notes for MIDI input
+    def number_to_note(number):
+        
+        notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+        # In case you prefer sharps (weirdo)
+        # notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+        return notes[number % 12]
+    
+    # Format chords for MIDI stream
+    def format_chord(chord):
+        
+        fmt_dict = {'(':r'$^($',
+                    ')':r'$^)$',
+                    'b':r'$^{\flat}$',
+                    '#':r'$^{\sharp}$',
+                    '°':r'$^{\mathrm{o}}$',
+                    'ø':r'$^{\o}$',
+                    '7':r'$^7$',
+                    '△':r'$\Delta$',
+                    'sus':r'$^{\mathrm{sus}}$',
+                    'add':r'$^{\mathrm{add}}$',
+                    'dim':r'$^{\mathrm{dim}}$',
+                    'omit':r'$^{\mathrm{omit}}$',
+                    '2':r'$^2$',
+                    '4':r'$^4$',
+                    '5':r'$^5$',
+                    '6':r'$^6$',
+                    '9':r'$^9$',
+                    '11':r'$^{11}$',
+                    '13':r'$^{13}$'}
+        
+        if not chord == '':   
+            # Remove junk
+            chord = re.sub(r'[<>]|[\[\]]','',chord)
+            chord = chord.replace('Chord: ','')
+            for key in fmt_dict:
+                # Ignore already replaced substrings
+                if str(fmt_dict[key]) in chord:
+                    continue
+                # Replace ones not yet done
+                if str(key) in chord:
+                    chord = chord.replace(key, fmt_dict[key])                
+        return chord

@@ -11,6 +11,7 @@ https://stackoverflow.com/questions/67642570/pygame-midi-how-to-detect-simultane
 
 from tools import *
 plt.close('all')
+mpl.use("Qt5Agg")
 
 #%% DEVICE SETUP
 
@@ -22,52 +23,11 @@ plt.close('all')
 # print_devices()
 
 #%% STREAM
-        
-def number_to_note(number):
-    
-    notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-    # In case you prefer sharps (weirdo)
-    # notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-    return notes[number % 12]
 
-def format_chord(chord):
+def read_input(input_device, fig, ax, main_text, sub_text, dev_id):
     
-    fmt_dict = {'(':r'$^($',
-                ')':r'$^)$',
-                'b':r'$^{\flat}$',
-                '#':r'$^{\sharp}$',
-                '°':r'$^{\mathrm{o}}$',
-                'ø':r'$^{\o}$',
-                '7':r'$^7$',
-                '△':r'$\Delta$',
-                'sus':r'$^{\mathrm{sus}}$',
-                'add':r'$^{\mathrm{add}}$',
-                'dim':r'$^{\mathrm{dim}}$',
-                'omit':r'$^{\mathrm{omit}}$',
-                '2':r'$^2$',
-                '4':r'$^4$',
-                '5':r'$^5$',
-                '6':r'$^6$',
-                '9':r'$^9$',
-                '11':r'$^{11}$',
-                '13':r'$^{13}$'}
-    
-    if not chord == '':
-        
-        # Remove junk
-        chord = re.sub(r'[<>]|[\[\]]','',chord)
-        chord = chord.replace('Chord: ','')
-        for key in fmt_dict:
-            # Ignore already replaced substrings
-            if str(fmt_dict[key]) in chord:
-                continue
-            # Replace ones not yet done
-            if str(key) in chord:
-                chord = chord.replace(key, fmt_dict[key])                
-    return chord
-
-def read_input(input_device, fig, ax, text, dev_id):
-    
+    main_text_fs = 150
+    sub_text_fs = 90
     pressed = {'notes':[], 'nums':[]}
     while True:
         
@@ -76,7 +36,12 @@ def read_input(input_device, fig, ax, text, dev_id):
             event = input_device.read(dev_id)[0]
             data, timestamp = event[0], event[1]
             state, note_num = data[0], data[1]
-            note = number_to_note(note_num)
+            # Ignore pedal events (state 176)
+            if state == 176:
+                continue
+            print(event)
+
+            note = tools.number_to_note(note_num)
             
             # Keep track of notes pressed down
             # Press event (state 144)
@@ -100,19 +65,38 @@ def read_input(input_device, fig, ax, text, dev_id):
             pressed_notes = list(dict.fromkeys(pressed['notes']))
             # Display either single note or chord
             if len(pressed_notes) == 1:
-                text.remove()
-                text = ax.text(x=0.5, y=0.5, s=note.replace('b', r'$^{\flat}$'), verticalalignment='center', horizontalalignment='center', fontsize=130)
+                main_text.remove()
+                sub_text.remove()
+                main_text = ax.text(x=0.5, y=0.6, s=note.replace('b', r'$^{\flat}$'),
+                                    verticalalignment='center', horizontalalignment='center',
+                                    fontsize=main_text_fs)
+                sub_text = ax.text(x=0.5, y=0.2, s='',
+                                   verticalalignment='center', horizontalalignment='center',
+                                   fontsize=sub_text_fs)
+
             if len(pressed_notes) >= 3:
-                chord = tools.get_chord(pressed_notes)
-                # Refresh display and print formatted chord name
-                text.remove()
-                text = ax.text(x=0.5, y=0.5, s=format_chord(chord), verticalalignment='center', horizontalalignment='center', fontsize=130)
+                global chords
+                chords = tools.get_chords(pressed_notes)
+                # Refresh display and print formatted chord names
+                main_text.remove()
+                sub_text.remove()
+                main_text = ax.text(x=0.5, y=0.6, s=tools.format_chord(chords[0]),
+                                    verticalalignment='center', horizontalalignment='center',
+                                    fontsize=main_text_fs)
+                sub_text = ax.text(x=0.5, y=0.2, s=tools.format_chord(chords[1]),
+                                   verticalalignment='center', horizontalalignment='center',
+                                   fontsize=sub_text_fs)
             
             # Or nothing, if no notes being played
             if not pressed_notes:
                 time.sleep(0.1)
-                text.remove()
-                text = ax.text(x=0.5, y=0.5, s='', verticalalignment='center', horizontalalignment='center', fontsize=110)
+                main_text.remove()
+                sub_text.remove()
+                main_text = ax.text(x=0.5, y=0.6, s='', verticalalignment='center',
+                               horizontalalignment='center', fontsize=main_text_fs)
+                sub_text = ax.text(x=0.5, y=0.2, s='',
+                                   verticalalignment='center', horizontalalignment='center',
+                                   fontsize=sub_text_fs)
         
         # Draw and refresh
         fig.canvas.draw()
@@ -134,9 +118,15 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(1,1, figsize=(18,10))
     ax.grid(False)
     ax.axis('off')
-    text = ax.text(x=0.5, y=0.5, s='play me summin real nice', verticalalignment='center', horizontalalignment='center', fontsize=80)
+    main_text = ax.text(x=0.5, y=0.5, s='play me summin real nice', verticalalignment='center',
+                        horizontalalignment='center', fontsize=100)
+    sub_text = ax.text(x=0.5, y=0.2, s='', verticalalignment='center',
+                       horizontalalignment='center', fontsize=50)
+    # Maximise figure window
+    # mng = plt.get_current_fig_manager()
+    # mng.window.state('zoomed')
     
     # Initialise pygame and call loop
     pg.midi.init()
     dev_id = 1
-    read_input(pg.midi.Input(dev_id), fig, ax, text, dev_id)
+    read_input(pg.midi.Input(dev_id), fig, ax, main_text, sub_text, dev_id)
