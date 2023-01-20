@@ -46,13 +46,19 @@ def n_groups(n, span):
     
     # FILTERS
     
-    # Cut out combinations that don't span at least a tritone
+    # Cut out combinations that don't span at least a tritone (clusters)
     span_filter = (df[cols[-1]] - df[cols[0]]) > 6
     df = df[span_filter]
     
     # Cut out combinations that contain an interval larger than a perfect 5th
+    # (stretches)
     int_filter = interval_filter(df, cols)
     df = df[int_filter]
+    
+    # Cut out combinations that contain more than two minor 2nd intervals
+    # (clusters / stretched clusters)
+    
+    ###########################################################################
         
     return df, cols
 
