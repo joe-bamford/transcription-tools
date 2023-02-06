@@ -66,7 +66,7 @@ def n_groups(n, span):
     
     # FILTERS
     # Cut out combinations that don't span at least a tritone (clusters)
-    span_filter = (df[cols[-1]] - df[cols[0]]) > 6
+    span_filter = (df[cols[-1]] - df[cols[0]]) >= 6
     df = df[span_filter]
     # Cut out combinations that contain an interval larger than a perfect 5th
     # (stretches)
@@ -87,7 +87,14 @@ def possible_qualities(span, nmin, nmax):
     return [frame for (frame, idx) in quals]
 
 
-# def format_result(df):
+def format_result(df):
+    out_list = []
+    for i in df.index:
+        row = str(df.loc[i, :].tolist())
+        row = row.replace('[','(').replace(']',')')
+        # print('("",',row,')')
+        out_list.append('("",'+row+'),')
+    return out_list
     
 
 #%% EXECUTE
@@ -97,8 +104,9 @@ start = time.time()
 # Range of possible notes up to the 13th of the chord
 space = np.arange(1,22,1)
 
-df, cols = n_groups(3, space)
+df, cols = n_groups(4, space)
 # q = possible_qualities(space, nmin=3, nmax=7)
+out = format_result(df)
 
 end = time.time()
 runtime = end - start
