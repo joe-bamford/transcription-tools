@@ -105,9 +105,13 @@ class tools(threading.Thread):
     def get_chords(notes):
         main_chord = str(pc.find_chords_from_notes(notes)).split(',')[0]
         slash_chord = str(pc.find_chords_from_notes(notes[1:], slash=notes[0])).split(',')[0]
+        print(main_chord, slash_chord)
+        # Failsafe to make sure primary prediction is never blank
+        if (main_chord == '[]' and slash_chord != '[]'):
+            main_chord = slash_chord
+            slash_chord = ''
         chords = [main_chord, slash_chord]
-        # if chords == ['[]','[]']:
-        #     chords = []
+
         return chords
     
     # Get manual key input
@@ -143,9 +147,9 @@ class tools(threading.Thread):
                     '7':r'$^7$',
                     '△':r'$\Delta$',
                     'sus':r'$^{\mathrm{sus}}$',
-                    'add':r'$^{\mathrm{add}}$',
+                    'aug':r'$^{\mathrm{aug}}$',
                     'dim':r'$^{\mathrm{dim}}$',
-                    'omit':r'$^{\mathrm{omit}}$',
+                    'add':r'$^{\mathrm{add}}$',
                     '2':r'$^2$',
                     '4':r'$^4$',
                     '5':r'$^5$',
