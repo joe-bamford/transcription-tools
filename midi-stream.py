@@ -26,20 +26,20 @@ mpl.use("Qt5Agg")
 
 def read_input(input_device, fig, ax, main_text, sub_text, dev_id):
     
-    main_text_fs = 150
-    sub_text_fs = 90
+    main_text_fs = 170
+    sub_text_fs = 100
     pressed = {'notes':[], 'nums':[]}
     while True:
         
         # Read changes from input device
         if input_device.poll():
             event = input_device.read(dev_id)[0]
+            # print(event)
             data, timestamp = event[0], event[1]
             state, note_num = data[0], data[1]
             # Ignore pedal events (state 176)
             if state == 176:
                 continue
-            print(event)
 
             note = tools.number_to_note(note_num)
             
