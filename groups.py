@@ -10,6 +10,31 @@ from itertools import combinations as combos
 
 #%% FUNCS
 
+# Get count of False values by row and add to new col
+def bool_count(df):
+    for i in df.index:
+        row = df.loc[i, :]
+        count = np.sum(row == False)
+        df.loc[i, 'tot'] = count
+    return df
+
+# Combine a list of series together via AND operation
+def combine_series_and(inlist):
+    while len(inlist) > 1:
+        inlist[0] = inlist[0] & inlist[1]
+        del inlist[1]
+    outseries = inlist[0]
+    return outseries
+
+# Combine a list of series together via OR operation
+def combine_series_or(inlist):
+    while len(inlist) > 1:
+        inlist[0] = inlist[0] | inlist[1]
+        del inlist[1]
+    outseries = inlist[0]
+    return outseries
+
+
 # Build a 1D filter to remove combinations that contain an interval larger than
 # a perfect 5th
 def interval_filter(df, cols):
@@ -19,36 +44,39 @@ def interval_filter(df, cols):
         # Check each interval
         intfilt = np.abs((df[c] - df[c+1])) < 7
         intfilts.append(intfilt)
-    # Combine these into one series via AND operation
-    while len(intfilts) > 1:
-        intfilts[0] = intfilts[0] & intfilts[1]
-        del intfilts[1]
-    intfilt = intfilts[0]
-    return intfilt
+    # Combine and return
+    return combine_series_and(intfilts)
 
 
-def bool_count(df):
-    for i in df.index:
-        row = df.loc[i, :]
-        count = np.sum(row == False)
-        df.loc[i, 'tot'] = count
-    return df
-
-
+# Build a 1D filter to remove combinations containing 2 or more semitone intervals
 def semitones_filter(df, cols):
     # First get a boolean filter from each pair of cols
     stfilts = pd.DataFrame()
     for c in range(len(cols) - 1):
         # Check each interval
-        stfilt = np.abs((df[c] - df[c+1])) >= 2
+        stfilt = np.abs(df[c] - df[c+1]) >= 2
         stfilts[c] = stfilt
     # Count number of semitone intervals per row
     global stf
     stf = bool_count(stfilts)
-    # Filter rows where there leq 1
+    # Filter rows where there are leq 1
     global st_filter
     st_filter = stf['tot'] <= 1
     return st_filter
+
+
+def octave_filter(df, cols):
+    oct_filter = []
+    for c in cols:
+        ofilts = []
+        for i in [j for j in cols if j > c]:
+            ofilt = np.abs(df[c] - df[i]) == 12
+            ofilts.append(ofilt)
+        if ofilts:
+            # Inner combine
+            oct_filter.append(combine_series_or(ofilts))
+    # Combine and return
+    return ~combine_series_or(oct_filter)
     
 
 # Generate filtered array of possible combos for a given length
@@ -76,6 +104,9 @@ def n_groups(n, span):
     # (clusters / stretched clusters)
     st_filter = semitones_filter(df, cols)
     df = df[st_filter]
+    # Cut out combinations containing octave intervals (dupe notes)
+    oct_filter = octave_filter(df, cols)
+    df = df[oct_filter]
     return df, cols
 
 # Generate combos over a range of lengths
@@ -86,7 +117,7 @@ def possible_qualities(span, nmin, nmax):
         quals.append(groups)
     return [frame for (frame, idx) in quals]
 
-
+# Cast output to format in qualities file
 def format_result(df):
     out_list = []
     for i in df.index:
@@ -112,6 +143,11 @@ end = time.time()
 runtime = end - start
 print(runtime)
 
+#%% TESTING CELL
+
+idxs = [i for i in df.index if i < 76]
+df2 = df.loc[idxs,:]
+a=octave_filter(df, cols)
 
 
 

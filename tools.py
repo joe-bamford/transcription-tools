@@ -8,12 +8,9 @@ Created on Sun Aug 28 18:54:01 2022
 #%% IMPORTS AND SETUP
 
 import numpy as np
-import yellowbrick
+import yellowbrick, scipy
 import librosa as lb
-import time
-import threading
-import os
-import scipy
+import time, os, re
 from scipy import signal as sg
 from scipy.fftpack import fft
 from tkinter import Tk
@@ -24,7 +21,6 @@ from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import librosa.display as lbd
 import pychord as pc
-import re
 import pygame as pg
 import pygame.midi
 import pyaudio as pa
@@ -55,7 +51,7 @@ frup = 5000
 
 #%% FUNCS
 
-class tools(threading.Thread):
+class tools():
 
     # Convert time from [mins:secs] to secs
     def convert_time(times: list, clip_length: float) -> list:
@@ -105,7 +101,6 @@ class tools(threading.Thread):
     def get_chords(notes):
         main_chord = str(pc.find_chords_from_notes(notes)).split(',')[0]
         slash_chord = str(pc.find_chords_from_notes(notes[1:], slash=notes[0])).split(',')[0]
-        print(main_chord, slash_chord)
         # Failsafe to make sure primary prediction is never blank
         if (main_chord == '[]' and slash_chord != '[]'):
             main_chord = slash_chord
