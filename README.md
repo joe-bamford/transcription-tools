@@ -19,7 +19,7 @@
 # _midi-stream.py_
 
 ## Current functionality
-Takes live midi input and displays notes/chords through a matplotlib GUI.
+Takes live midi input and reactively displays notes/chords through a matplotlib GUI.
 
 ## Desired functionality
 Quicker response time, especially with big chords.
