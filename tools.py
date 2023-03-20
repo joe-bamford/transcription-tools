@@ -17,7 +17,7 @@ from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.transforms as trf
 import pandas as pd
 import librosa.display as lbd
 import pychord as pc
@@ -54,17 +54,28 @@ frup = 5000
 class tools():
 
     # Convert time from [mins:secs] to secs
-    def convert_time(times: list, clip_length: float) -> list:
-        if times[0] == '':
-            times[0] = '0:0'
-        times_secs = []
-        for time in times:
-            if time == '':
-                times_secs.append(clip_length)
-            else:
-                mins, secs = re.split('[:,.]',time)
-                times_secs.append(int(secs) + 60*int(mins))
-        return np.array(times_secs)
+    def convert_time(times: list, clip_length: float, reverse: bool) -> list:
+        if not reverse:
+            if times[0] == '':
+                times[0] = '0:0'
+            times_secs = []
+            for time in times:
+                if time == '':
+                    times_secs.append(clip_length)
+                else:
+                    mins, secs = re.split('[:,.]',time)
+                    times_secs.append(int(secs) + 60*int(mins))
+            return np.array(times_secs)
+        else:
+            split_times = []
+            for time in times:
+                mins = str(int(np.floor(time/60)))
+                secs = str(int(np.floor(time%60)))
+                if len(secs) == 1:
+                    secs = '0' + secs
+                split_time = mins + ':' + secs
+                split_times.append(split_time) 
+            return split_times
 
     
     # Get notes from freqs through librosa and add to dataframe
@@ -101,6 +112,12 @@ class tools():
     def get_chords(notes):
         main_chord = str(pc.find_chords_from_notes(notes)).split(',')[0]
         slash_chord = str(pc.find_chords_from_notes(notes[1:], slash=notes[0])).split(',')[0]
+        # Swap the predictions if primary is more verbose
+        #if len(main_chord) > len(slash_chord):
+        if '/' in main_chord and '/' not in slash_chord:
+            a = slash_chord
+            slash_chord = main_chord
+            main_chord = a
         # Failsafe to make sure primary prediction is never blank
         if (main_chord == '[]' and slash_chord != '[]'):
             main_chord = slash_chord

@@ -11,7 +11,7 @@ https://stackoverflow.com/questions/67642570/pygame-midi-how-to-detect-simultane
 
 from tools import *
 plt.close('all')
-mpl.use("Qt5Agg")
+#mpl.use("Qt5Agg")
 
 #%% DEVICE SETUP
 
@@ -24,6 +24,12 @@ mpl.use("Qt5Agg")
 
 #%% STREAM
 
+# Draw text to window
+def draw_text(pos_x, pos_y, text, size):
+    return ax.text(x=pos_x, y=pos_y, s=text, c='white', fontsize=size,
+                   verticalalignment='center', horizontalalignment='center')
+                    
+# Stream
 def read_input(input_device, fig, ax, main_text, sub_text, dev_id):
     
     main_text_fs = 170
@@ -39,6 +45,9 @@ def read_input(input_device, fig, ax, main_text, sub_text, dev_id):
             state, note_num = data[0], data[1]
             # Ignore pedal events (state 176)
             if state == 176:
+                continue
+            # Low note filter (for only picking up left hand)
+            if note_num > 67:
                 continue
 
             note = tools.number_to_note(note_num)
@@ -67,12 +76,8 @@ def read_input(input_device, fig, ax, main_text, sub_text, dev_id):
             if len(pressed_notes) == 1:
                 main_text.remove()
                 sub_text.remove()
-                main_text = ax.text(x=0.5, y=0.6, s=note.replace('b', r'$^{\flat}$'),
-                                    verticalalignment='center', horizontalalignment='center',
-                                    fontsize=main_text_fs)
-                sub_text = ax.text(x=0.5, y=0.2, s='',
-                                   verticalalignment='center', horizontalalignment='center',
-                                   fontsize=sub_text_fs)
+                main_text = draw_text(0.5, 0.6, note.replace('b', r'$^{\flat}$'), main_text_fs)
+                sub_text = draw_text(0.5, 0.2, '', sub_text_fs)
 
             if len(pressed_notes) >= 3:
                 global chords
@@ -80,23 +85,16 @@ def read_input(input_device, fig, ax, main_text, sub_text, dev_id):
                 # Refresh display and print formatted chord names
                 main_text.remove()
                 sub_text.remove()
-                main_text = ax.text(x=0.5, y=0.6, s=tools.format_chord(chords[0]),
-                                    verticalalignment='center', horizontalalignment='center',
-                                    fontsize=main_text_fs)
-                sub_text = ax.text(x=0.5, y=0.2, s=tools.format_chord(chords[1]),
-                                   verticalalignment='center', horizontalalignment='center',
-                                   fontsize=sub_text_fs)
+                main_text = draw_text(0.5, 0.6, tools.format_chord(chords[0]), main_text_fs)
+                sub_text = draw_text(0.5, 0.2, tools.format_chord(chords[1]), sub_text_fs)
             
             # Or nothing, if no notes being played
             if not pressed_notes:
                 time.sleep(0.1)
                 main_text.remove()
                 sub_text.remove()
-                main_text = ax.text(x=0.5, y=0.6, s='', verticalalignment='center',
-                               horizontalalignment='center', fontsize=main_text_fs)
-                sub_text = ax.text(x=0.5, y=0.2, s='',
-                                   verticalalignment='center', horizontalalignment='center',
-                                   fontsize=sub_text_fs)
+                main_text = draw_text(0.5, 0.6, '', main_text_fs)
+                sub_text = draw_text(0.5, 0.2, '', sub_text_fs)
         
         # Draw and refresh
         fig.canvas.draw()
@@ -112,19 +110,19 @@ def read_input(input_device, fig, ax, main_text, sub_text, dev_id):
     # Restart kernel to refresh device IDs
     os._exit(00)
 
+# Execute
 if __name__ == '__main__':
     
     # Initialise display
     fig, ax = plt.subplots(1,1, figsize=(18,10))
     ax.grid(False)
     ax.axis('off')
-    main_text = ax.text(x=0.5, y=0.5, s='play me summin real nice', verticalalignment='center',
-                        horizontalalignment='center', fontsize=100)
-    sub_text = ax.text(x=0.5, y=0.2, s='', verticalalignment='center',
-                       horizontalalignment='center', fontsize=50)
+    fig.set_facecolor('black')
+    main_text = draw_text(0.5, 0.6, '', 100)
+    sub_text = draw_text(0.5, 0.2, '', 50)
     # Maximise figure window
-    # mng = plt.get_current_fig_manager()
-    # mng.window.state('zoomed')
+    mng = plt.get_current_fig_manager()
+    mng.window.state('zoomed')
     
     # Initialise pygame and call loop
     pg.midi.init()
