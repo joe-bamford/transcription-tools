@@ -1,7 +1,8 @@
 ## chord-detector (WIP)
 
 
-### List of module dependencies
+### List of module dependencies (between all scripts)
+
 - numpy
 - matplotlib
 - pychord
