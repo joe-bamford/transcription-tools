@@ -47,9 +47,9 @@ def read_input(input_device, fig, ax, main_text, sub_text, dev_id):
             if state == 176:
                 continue
             # Low note filter (for only picking up left hand)
-            if note_num > 67:
-                continue
-
+            # if note_num > 67:
+            #     continue
+            
             note = tools.number_to_note(note_num)
             
             # Keep track of notes pressed down
@@ -126,5 +126,6 @@ if __name__ == '__main__':
     
     # Initialise pygame and call loop
     pg.midi.init()
+    # EDIT THIS TO CHANGE INPUT DEVICE
     dev_id = 1
     read_input(pg.midi.Input(dev_id), fig, ax, main_text, sub_text, dev_id)
