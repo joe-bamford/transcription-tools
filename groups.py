@@ -2,6 +2,8 @@
 """
 Created on Fri Jan 20 14:09:11 2023
 
+An outdated attempt to find every playable 3-note and 4-note chord in terms of note numbers.
+
 @author: bamjo
 """
 
