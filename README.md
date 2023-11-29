@@ -11,11 +11,10 @@
 - pandas
 - scipy
 - pyaudio
-- struct
 - keyboard
 - yellowbrick (optional, only for plot aesthetics)
 
-> NOTE: These scripts will only work if you install my forked version of pychord.
+> NOTE: These scripts will only work if you install my forked version of pychord. You can clone it from [here](https://github.com/joe-bamford/pychord).
 
 ## _midi-stream.py_
 
@@ -40,7 +39,4 @@ Greater reliability with chord identification.
 > NOTE: Essentially a clone of the program in this video - https://www.youtube.com/watch?v=AShHJdSIxkY.
 
 ### Current functionality
-Plots a live waveform and spectrum from microphone input stream, identifies notes from the spectrum.
-
-### Desired functionality
-Greater stability in chord detection.
+Plots a live waveform and spectrum from microphone input stream, identifies notes from the spectrum. How well this works depends heavily on your microphone.
