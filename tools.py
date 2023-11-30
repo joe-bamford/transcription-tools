@@ -2,7 +2,7 @@
 """
 Created on Sun Aug 28 18:54:01 2022
 
-General helper functions 
+General helper functions for all scripts.
 
 @author: bamjoe
 """
@@ -10,9 +10,9 @@ General helper functions
 #%% IMPORTS AND SETUP
 
 import numpy as np
-import yellowbrick, scipy
+import pandas as pd
 import librosa as lb
-import time, os, re
+import time, os, re, scipy
 from scipy import signal as sg
 from scipy.fftpack import fft
 from tkinter import Tk
@@ -20,7 +20,6 @@ from tkinter.filedialog import askopenfilename
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.transforms as trf
-import pandas as pd
 import librosa.display as lbd
 import pychord as pc
 import pygame as pg
