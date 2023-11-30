@@ -1,1 +1,9 @@
-
+numpy
+pandas
+matplotlib
+pychord
+pygame
+librosa
+scipy
+pyaudio
+keyboard
