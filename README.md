@@ -1,8 +1,8 @@
 ## transcription-tools
 
-This repo contains scripts I wrote to streamline my process of transcribing music by ear. Required packages can be installed with ```pip install requirements.txt```.
+This repo contains scripts I wrote to streamline my process of transcribing music by ear. Required packages can be installed with `pip install requirements.txt`.
 
-__These scripts will only work if you install my forked version of pychord.__ You can can install it with ```pip install git+ssh://git@github.com/joe-bamford/pychord.git```.
+__These scripts will only work if you install my forked version of pychord.__ You can can install it with `pip install git+ssh://git@github.com/joe-bamford/pychord.git`.
 
 ### List of module dependencies (between all scripts)
 
