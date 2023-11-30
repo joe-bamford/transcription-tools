@@ -1,5 +1,8 @@
-## chord-detector (WIP)
+## transcription-tools
 
+This repo contains scripts I wrote to streamline my process of transcribing music by ear. 
+
+> NOTE: These scripts will only work if you install my forked version of pychord. You can can install it with ```pip install git+ssh://git@github.com/joe-bamford/pychord.git```.
 
 ### List of module dependencies (between all scripts)
 
@@ -12,8 +15,6 @@
 - scipy
 - pyaudio
 - keyboard
-
-> NOTE: These scripts will only work if you install my forked version of pychord. You can clone it from [here](https://github.com/joe-bamford/pychord).
 
 ## _midi-stream.py_
 
