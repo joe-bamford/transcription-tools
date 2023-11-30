@@ -4,6 +4,8 @@ Created on Mon Aug 15 12:14:49 2022
 
 @author: bamjoe
 
+Extracts the harmonic component from a .wav file and plots a log-frequency spectrogram which can be used to identify notes in the recording.
+
 INSPIRED BY TUTORIAL BY MEDALLION DATA SCIENCE: https://www.youtube.com/watch?v=ZqpSb5p1xQo
 """
 
