@@ -7,3 +7,4 @@ librosa
 scipy
 pyaudio
 keyboard
+git+https://github.com/joe-bamford/pychord.git
