@@ -2,6 +2,8 @@
 """
 Created on Sun Aug 28 18:54:01 2022
 
+General helper functions 
+
 @author: bamjoe
 """
 
@@ -99,6 +101,7 @@ class tools():
         chords_col = []
         for i in df.index:
             notes = df.at[i,'Notes']
+            # Handle slash chords
             if force_slash == False:
                 chord = pc.find_chords_from_notes(notes, slash='n')
             else:
@@ -109,7 +112,7 @@ class tools():
     
     
     # Get chords from notes and return as a simple list
-    def get_chords(notes):
+    def get_chords(notes: list) -> list:
         main_chord = str(pc.find_chords_from_notes(notes)).split(',')[0]
         slash_chord = str(pc.find_chords_from_notes(notes[1:], slash=notes[0])).split(',')[0]
         # Swap the predictions if primary is more verbose
@@ -140,15 +143,14 @@ class tools():
         return key
 
     # Convert numbers to notes for MIDI input
-    def number_to_note(number):
-        
+    def number_to_note(number: int) -> str:
         notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-        # In case you prefer sharps (weirdo)
+        # In case you prefer sharps
         # notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
         return notes[number % 12]
     
-    # Format chords for MIDI stream
-    def format_chord(chord):
+    # Format chords as LaTeX strings to be displayed in plt window
+    def format_chord(chord: str) -> str:
         
         fmt_dict = {'(':r'$^($',
                     ')':r'$^)$',
