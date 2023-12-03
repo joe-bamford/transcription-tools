@@ -16,7 +16,7 @@ This repo contains scripts I wrote to streamline my process of transcribing musi
 
 ## _midi-stream.py_
 
-Useful as an aid for learning chord shapes & qualities, as well as for quick identification of uncommon shapes.
+Useful as an aid for learning chord shapes & qualities, as well as for quick identification of uncommon shapes. Requires a keyboard with MIDI output and appropriate computer connectivity (MIDI/USB).
 
 > NOTE: Setting up this script requires identifying which audio device is your piano. If getting a MidiException error then try changing the value of the _dev_id_ variable. The commented-out cell 'DEVICE SETUP' will list all detected audio devices on your system; you can then change _dev_id_ to the desired device. A kernel restart may be required after doing this.
 
